@@ -1,22 +1,22 @@
 ﻿/*!
  * typeahead.js 0.2.0
- * Shared Underscore Library
+ * Shared jQuery Extensions Library
  * https://github.com/brass9/typeahead.js
  * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function (root, factory) {
 	if (typeof define === "function" && define.amd) {
-		define("_", ["jquery"], function (a0) {
-			return root["_"] = factory(a0);
+		define("$_", ["jquery"], function (a0) {
+			return root["$_"] = factory(a0);
 		});
 	} else if (typeof exports === "object") {
 		module.exports = factory(require("jquery"));
 	} else {
-		root["_"] = factory(jQuery);
+		root["$_"] = factory(jQuery);
 	}
 })(this, function ($) {
-	var _ = function () {
+	var $_ = function () {
 		"use strict";
 		return {
 			isBlankString: function (str) {
@@ -44,7 +44,7 @@
 				return obj instanceof $;
 			},
 			toStr: function toStr(s) {
-				return _.isUndefined(s) || s === null ? "" : s + "";
+				return $_.isUndefined(s) || s === null ? "" : s + "";
 			},
 			bind: $.proxy,
 			each: function (collection, cb) {
@@ -144,10 +144,10 @@
 				};
 			},
 			stringify: function (val) {
-				return _.isString(val) ? val : JSON.stringify(val);
+				return $_.isString(val) ? val : JSON.stringify(val);
 			},
 			noop: function () { }
 		};
 	}();
-	return _;
+	return $_;
 });

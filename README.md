@@ -19,6 +19,15 @@ Twitter's Typeahead still works great, but if you try to use it with modern jQue
 
 It could use an upgrade, and jQuery3 also has underlying principles a decade later worth bringing to typeahead - for example, that oldIE is dead and not worth the extra code to support.
 
+This release upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - an underscore library that was really a jQuery extension, not the popular Underscore library, appeared in both bloodhound in typeahead. In this version it's extracted.* That means you need 3 dist files for a working Typeahead:
+
+	typeahead-underscore.js
+	bloodhound.js
+	typeahead.jquery.js
+
+Also note that typeahead.jquery.js is misleading; it might make it seem like it's the only part that depends on jQuery. In fact all 3 files do (and Bloodhound always did). So, jquery-3.7.0.js (or higher) should be loaded before these 3 files.
+
+*The shared $_ library may ultimately be eliminated entirely by leveraging the past decade of Javascript language improvements.
 
 Getting Started
 ---------------
@@ -39,6 +48,7 @@ HTML:
 
 	<input type=text id=searchArray />
 	<script src=jquery-3.7.0.js></script>
+	<script src=typeahead-underscore.js></script>
 	<script src=bloodhound.js></script>
 	<script src=typeahead.jquery.js></script>
 
@@ -141,11 +151,11 @@ Example usage:
 		}
 	}
 
-In the second config section, add a templates entry, open an object, and in there add a suggestion entry.
+This templates section goes in the second config section.
 
 The value to pass varies based on the kind of data you're using. For flat data, use a function like the above. The only argument passed (`r` here) is a string - the full text of the search result being rendered. In our template, we're adding an extra span wrapper around it, perhaps to add some extra CSS effects.
 
-If you're using more complex JSON, there's still only one argument passed to you, but its contents, and your responsibilities, differ. The resulting object will, for a dataset with JSON rows like { id, name }:
+If you're using more complex JSON, there's still only one argument passed to you, but its contents, and your responsibilities, differ. The resulting object will look like this, for a dataset with JSON rows that each look like { id, name }:
 
 	{
 		_query: 'Text typed so far in typeahead',
@@ -153,7 +163,7 @@ If you're using more complex JSON, there's still only one argument passed to you
 		name: 'Ford'
 	}
 
-That is, the object passed to you is the row of your data being rendered in the results, plus a mixin property of `_query`, which gives you the text typed so far. You're going to need it, because complex JSON moves the burden of highlighting in this template on to you:
+That is, the object passed to you is the row of your data being rendered in the results, plus a mixin property of `_query`, which gives you the text typed so far in the input box. You're going to need it, because using complex JSON instead of a flat array moves the burden of highlighting in this template on to you:
 
 	templates: {
 		suggestion: r => {
@@ -164,9 +174,9 @@ That is, the object passed to you is the row of your data being rendered in the 
 
 (This example uses several newer features of Javascript that long-time coders may not be as familiar with. The arrow `=>` syntax is shorthand for a function. The `$&` in the replace string inserts the replaced term, useful for compiled-speed wrapping. And the backticks and `${...}` provide compiled-speed Javascript String Templates or String Interpolation.)
 
-This is a pretty major departure from the templates that worked on flat data. You might have expected working templates for both, but unfortunately that's not the case. Not only is what we're passed different, but if `highlight: true` is set, highlighting now becomes the developer's responsibility. You can see a quick way to accomplish that in the `.replace()` call above.
+This is a pretty major departure from the templates that worked on flat data. You might have expected a single template to work for both styles of data, but unfortunately that's not the case. Not only is what we're passed different, but if `highlight: true` is set, highlighting now becomes the developer's responsibility. You can see a quick way to accomplish that in the `.replace()` call above.
 
-Regardless of your data type, the output from this template may surprise you. It won't render with just the tags you asked for - the Typeahead is going to insert its classes into what you emit. The above template won't get you a div tag wrapped around a strong tag, it's going to give you this:
+Regardless of your data type, the output from this template may surprise you. It won't render with just the tags you asked for - the Typeahead is going to insert its classes into what you emit. The above template won't just get you a div tag wrapped around a strong tag, it's going to give you this:
 
 	<div class="tt-suggestion tt-selectable">
 		<strong class=tt-highlight >F</strong>ord F150

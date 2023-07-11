@@ -7,15 +7,15 @@
 
 (function (root, factory) {
 	if (typeof define === "function" && define.amd) {
-		define("typeahead.js", ["jquery"], function (a0) {
-			return factory(a0);
+		define("typeahead.js", ["jquery", "$_"], function (a0, a1) {
+			return factory(a0, a1);
 		});
 	} else if (typeof exports === "object") {
-		module.exports = factory(require("jquery"));
+		module.exports = factory(require("jquery", "$_"));
 	} else {
-		factory(jQuery);
+		factory(jQuery, $_);
 	}
-})(this, function ($) {
+})(this, function ($, $_) {
 	var WWW = function () {
 		"use strict";
 		var defaultClassNames = {
@@ -34,7 +34,7 @@
 		return build;
 		function build(o) {
 			var www, classes;
-			classes = _.mixin({}, defaultClassNames, o);
+			classes = $_.mixin({}, defaultClassNames, o);
 			www = {
 				css: buildCss(),
 				classes: classes,
@@ -47,7 +47,7 @@
 				classes: www.classes,
 				selectors: www.selectors,
 				mixin: function (o) {
-					_.mixin(o, www);
+					$_.mixin(o, www);
 				}
 			};
 		}
@@ -59,7 +59,7 @@
 		}
 		function buildSelectors(classes) {
 			var selectors = {};
-			_.each(classes, function (v, k) {
+			$_.each(classes, function (v, k) {
 				selectors[k] = "." + v;
 			});
 			return selectors;
@@ -122,7 +122,7 @@
 			}
 			this.$el = $(o.el);
 		}
-		_.mixin(EventBus.prototype, {
+		$_.mixin(EventBus.prototype, {
 			_trigger: function (type, args) {
 				var $e;
 				$e = $.Event(namespace + type);
@@ -248,11 +248,11 @@
 		};
 		return function hightlight(o) {
 			var regex;
-			o = _.mixin({}, defaults, o);
+			o = $_.mixin({}, defaults, o);
 			if (!o.node || !o.pattern) {
 				return;
 			}
-			o.pattern = _.isArray(o.pattern) ? o.pattern : [o.pattern];
+			o.pattern = $_.isArray(o.pattern) ? o.pattern : [o.pattern];
 			regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
 			traverse(o.node, hightlightTextNode);
 			function hightlightTextNode(textNode) {
@@ -282,7 +282,7 @@
 		function getRegex(patterns, caseSensitive, wordsOnly) {
 			var escapedPatterns = [], regexStr;
 			for (var i = 0, len = patterns.length; i < len; i++) {
-				escapedPatterns.push(_.escapeRegExChars(patterns[i]));
+				escapedPatterns.push($_.escapeRegExChars(patterns[i]));
 			}
 			regexStr = wordsOnly ? "\\b(" + escapedPatterns.join("|") + ")\\b" : "(" + escapedPatterns.join("|") + ")";
 			return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
@@ -313,13 +313,13 @@
 			this.$overflowHelper = buildOverflowHelper(this.$input);
 			this._checkLanguageDirection();
 			if (this.$hint.length === 0) {
-				this.setHint = this.getHint = this.clearHint = this.clearHintIfInvalid = _.noop;
+				this.setHint = this.getHint = this.clearHint = this.clearHintIfInvalid = $_.noop;
 			}
 		}
 		Input.normalizeQuery = function (str) {
-			return _.toStr(str).replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
+			return $_.toStr(str).replace(/^\s*/g, "").replace(/\s{2,}/g, " ");
 		};
-		_.mixin(Input.prototype, EventEmitter, {
+		$_.mixin(Input.prototype, EventEmitter, {
 			_onBlur: function onBlur() {
 				this.resetInputValue();
 				this.trigger("blurred");
@@ -386,10 +386,10 @@
 			},
 			bind: function () {
 				var that = this, onBlur, onFocus, onKeydown, onInput;
-				onBlur = _.bind(this._onBlur, this);
-				onFocus = _.bind(this._onFocus, this);
-				onKeydown = _.bind(this._onKeydown, this);
-				onInput = _.bind(this._onInput, this);
+				onBlur = $_.bind(this._onBlur, this);
+				onFocus = $_.bind(this._onFocus, this);
+				onKeydown = $_.bind(this._onKeydown, this);
+				onInput = $_.bind(this._onInput, this);
 				this.$input
 					.on("blur.tt", onBlur)
 					.on("focus.tt", onFocus)
@@ -456,7 +456,7 @@
 				var valueLength, selectionStart, range;
 				valueLength = this.$input.val().length;
 				selectionStart = this.$input[0].selectionStart;
-				if (_.isNumber(selectionStart)) {
+				if ($_.isNumber(selectionStart)) {
 					return selectionStart === valueLength;
 				} else if (document.selection) {
 					range = document.selection.createRange();
@@ -504,7 +504,7 @@
 			val: "tt-selectable-display",
 			obj: "tt-selectable-object"
 		};
-		nameGenerator = _.getIdGenerator();
+		nameGenerator = $_.getIdGenerator();
 		function Dataset(o, www) {
 			o = o || {};
 			o.templates = o.templates || {};
@@ -525,7 +525,7 @@
 			this.displayFn = getDisplayFn(o.display || o.displayKey);
 			this.templates = getTemplates(o.templates, this.displayFn);
 			this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
-			this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
+			this.async = $_.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
 			this._resetLastSuggestion();
 			this.$el = $(o.node).addClass(this.classes.dataset).addClass(this.classes.dataset + "-" + this.name);
 		}
@@ -539,7 +539,7 @@
 			}
 			return null;
 		};
-		_.mixin(Dataset.prototype, EventEmitter, {
+		$_.mixin(Dataset.prototype, EventEmitter, {
 			_overwrite: function overwrite(query, suggestions) {
 				suggestions = suggestions || [];
 				if (suggestions.length) {
@@ -600,7 +600,7 @@
 			_getSuggestionsFragment: function getSuggestionsFragment(query, suggestions) {
 				var that = this, fragment;
 				fragment = document.createDocumentFragment();
-				_.each(suggestions, function getSuggestionNode(suggestion) {
+				$_.each(suggestions, function getSuggestionNode(suggestion) {
 					var $el, context;
 					context = that._injectQuery(query, suggestion);
 					$el = $(that.templates.suggestion(context)).data(keys.obj, suggestion).data(keys.val, that.displayFn(suggestion)).addClass(that.classes.suggestion + " " + that.classes.selectable);
@@ -631,7 +631,7 @@
 				this.$lastSuggestion = $();
 			},
 			_injectQuery: function injectQuery(query, obj) {
-				return _.isObject(obj) ? _.mixin({
+				return $_.isObject(obj) ? $_.mixin({
 					_query: query
 				}, obj) : obj;
 			},
@@ -682,18 +682,18 @@
 		});
 		return Dataset;
 		function getDisplayFn(display) {
-			display = display || _.stringify;
-			return _.isFunction(display) ? display : displayFn;
+			display = display || $_.stringify;
+			return $_.isFunction(display) ? display : displayFn;
 			function displayFn(obj) {
 				return obj[display];
 			}
 		}
 		function getTemplates(templates, displayFn) {
 			return {
-				notFound: templates.notFound && _.templatify(templates.notFound),
-				pending: templates.pending && _.templatify(templates.pending),
-				header: templates.header && _.templatify(templates.header),
-				footer: templates.footer && _.templatify(templates.footer),
+				notFound: templates.notFound && $_.templatify(templates.notFound),
+				pending: templates.pending && $_.templatify(templates.pending),
+				header: templates.header && $_.templatify(templates.header),
+				footer: templates.footer && $_.templatify(templates.footer),
 				suggestion: templates.suggestion || suggestionTemplate
 			};
 			function suggestionTemplate(context) {
@@ -715,14 +715,14 @@
 			www.mixin(this);
 			this.$node = $(o.node);
 			this.query = null;
-			this.datasets = _.map(o.datasets, initializeDataset);
+			this.datasets = $_.map(o.datasets, initializeDataset);
 			function initializeDataset(oDataset) {
 				var node = that.$node.find(oDataset.node).first();
 				oDataset.node = node.length ? node : $("<div>").appendTo(that.$node);
 				return new Dataset(oDataset, www);
 			}
 		}
-		_.mixin(Menu.prototype, EventEmitter, {
+		$_.mixin(Menu.prototype, EventEmitter, {
 			_onSelectableClick: function onSelectableClick($e) {
 				this.trigger("selectableClicked", $($e.currentTarget));
 			},
@@ -738,7 +738,7 @@
 				this.trigger.apply(this, arguments);
 			},
 			_allDatasetsEmpty: function allDatasetsEmpty() {
-				return _.every(this.datasets, isDatasetEmpty);
+				return $_.every(this.datasets, isDatasetEmpty);
 				function isDatasetEmpty(dataset) {
 					return dataset.isEmpty();
 				}
@@ -764,9 +764,9 @@
 			},
 			bind: function () {
 				var that = this, onSelectableClick;
-				onSelectableClick = _.bind(this._onSelectableClick, this);
+				onSelectableClick = $_.bind(this._onSelectableClick, this);
 				this.$node.on("click.tt", this.selectors.selectable, onSelectableClick);
-				_.each(this.datasets, function (dataset) {
+				$_.each(this.datasets, function (dataset) {
 					dataset.onSync("asyncRequested", that._propagate, that).onSync("asyncCanceled", that._propagate, that).onSync("asyncReceived", that._propagate, that).onSync("rendered", that._onRendered, that).onSync("cleared", that._onCleared, that);
 				});
 				return this;
@@ -816,7 +816,7 @@
 				var isValidUpdate = query !== this.query;
 				if (isValidUpdate) {
 					this.query = query;
-					_.each(this.datasets, updateDataset);
+					$_.each(this.datasets, updateDataset);
 				}
 				return isValidUpdate;
 				function updateDataset(dataset) {
@@ -824,7 +824,7 @@
 				}
 			},
 			empty: function empty() {
-				_.each(this.datasets, clearDataset);
+				$_.each(this.datasets, clearDataset);
 				this.query = null;
 				this.$node.addClass(this.classes.empty);
 				function clearDataset(dataset) {
@@ -834,7 +834,7 @@
 			destroy: function destroy() {
 				this.$node.off(".tt");
 				this.$node = $("<div>");
-				_.each(this.datasets, destroyDataset);
+				$_.each(this.datasets, destroyDataset);
 				function destroyDataset(dataset) {
 					dataset.destroy();
 				}
@@ -848,7 +848,7 @@
 		function DefaultMenu() {
 			Menu.apply(this, [].slice.call(arguments, 0));
 		}
-		_.mixin(DefaultMenu.prototype, Menu.prototype, {
+		$_.mixin(DefaultMenu.prototype, Menu.prototype, {
 			open: function open() {
 				!this._allDatasetsEmpty() && this._show();
 				return s.open.apply(this, [].slice.call(arguments, 0));
@@ -902,7 +902,7 @@
 			}
 			www.mixin(this);
 			this.eventBus = o.eventBus;
-			this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
+			this.minLength = $_.isNumber(o.minLength) ? o.minLength : 1;
 			this.input = o.input;
 			this.menu = o.menu;
 			this.enabled = true;
@@ -924,7 +924,7 @@
 			onWhitespaceChanged = c(this, "_openIfActive", "_onWhitespaceChanged");
 			this.input.bind().onSync("focused", onFocused, this).onSync("blurred", onBlurred, this).onSync("enterKeyed", onEnterKeyed, this).onSync("tabKeyed", onTabKeyed, this).onSync("escKeyed", onEscKeyed, this).onSync("upKeyed", onUpKeyed, this).onSync("downKeyed", onDownKeyed, this).onSync("leftKeyed", onLeftKeyed, this).onSync("rightKeyed", onRightKeyed, this).onSync("queryChanged", onQueryChanged, this).onSync("whitespaceChanged", onWhitespaceChanged, this).onSync("langDirChanged", this._onLangDirChanged, this);
 		}
-		_.mixin(Typeahead.prototype, {
+		$_.mixin(Typeahead.prototype, {
 			_hacks: function hacks() {
 				var $input, $menu;
 				$input = this.input.$input || $("<div>");
@@ -1015,7 +1015,7 @@
 				this.isActive() && this.open();
 			},
 			_minLengthMet: function minLengthMet(query) {
-				query = _.isString(query) ? query : this.input.getQuery() || "";
+				query = $_.isString(query) ? query : this.input.getQuery() || "";
 				return query.length >= this.minLength;
 			},
 			_updateHint: function updateHint() {
@@ -1023,9 +1023,9 @@
 				$selectable = this.menu.getTopSelectable();
 				data = this.menu.getSelectableData($selectable);
 				val = this.input.getInputValue();
-				if (data && !_.isBlankString(val) && !this.input.hasOverflow()) {
+				if (data && !$_.isBlankString(val) && !this.input.hasOverflow()) {
 					query = Input.normalizeQuery(val);
-					escapedQuery = _.escapeRegExChars(query);
+					escapedQuery = $_.escapeRegExChars(query);
 					frontMatchRegEx = new RegExp("^(?:" + escapedQuery + ")(.+$)", "i");
 					match = frontMatchRegEx.exec(data.val);
 					match && this.input.setHint(val + match[1]);
@@ -1089,7 +1089,7 @@
 				return !this.isOpen();
 			},
 			setVal: function setVal(val) {
-				this.input.setQuery(_.toStr(val));
+				this.input.setQuery($_.toStr(val));
 			},
 			getVal: function getVal() {
 				return this.input.getQuery();
@@ -1146,7 +1146,7 @@
 			var methods = [].slice.call(arguments, 1);
 			return function () {
 				var args = [].slice.call(arguments);
-				_.each(methods, function (method) {
+				$_.each(methods, function (method) {
 					return ctx[method].apply(ctx, args);
 				});
 			};
@@ -1164,13 +1164,13 @@
 		methods = {
 			initialize: function initialize(o, datasets) {
 				var www;
-				datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
+				datasets = $_.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
 				o = o || {};
 				www = WWW(o.classNames);
 				return this.each(attach);
 				function attach() {
 					var $input, $wrapper, $hint, $menu, defaultHint, defaultMenu, eventBus, input, menu, typeahead, MenuConstructor;
-					_.each(datasets, function (d) {
+					$_.each(datasets, function (d) {
 						d.highlight = !!o.highlight;
 					});
 					$input = $(this);
@@ -1366,8 +1366,8 @@
 			var www, $wrapper;
 			www = $input.data(keys.www);
 			$wrapper = $input.parent().filter(www.selectors.wrapper);
-			_.each($input.data(keys.attrs), function (val, key) {
-				_.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+			$_.each($input.data(keys.attrs), function (val, key) {
+				$_.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
 			});
 			$input.removeData(keys.typeahead).removeData(keys.www).removeData(keys.attr).removeClass(www.classes.input);
 			if ($wrapper.length) {
@@ -1377,7 +1377,7 @@
 		}
 		function $elOrNull(obj) {
 			var isValid, $el;
-			isValid = _.isJQuery(obj) || _.isElement(obj);
+			isValid = $_.isJQuery(obj) || $_.isElement(obj);
 			$el = isValid ? $(obj).first() : [];
 			return $el.length ? $el : null;
 		}

@@ -7,15 +7,15 @@
 
 (function (root, factory) {
 	if (typeof define === "function" && define.amd) {
-		define("bloodhound", ["jquery"], function (a0) {
-			return root["Bloodhound"] = factory(a0);
+		define("bloodhound", ["jquery", "$_"], function (a0, a1) {
+			return root["Bloodhound"] = factory(a0, a1);
 		});
 	} else if (typeof exports === "object") {
-		module.exports = factory(require("jquery"));
+		module.exports = factory(require("jquery", "$_"));
 	} else {
-		root["Bloodhound"] = factory(jQuery);
+		root["Bloodhound"] = factory(jQuery, $_);
 	}
-})(this, function ($) {
+})(this, function ($, $_) {
 	var VERSION = "0.2.0";
 	var tokenizers = function () {
 		"use strict";
@@ -28,19 +28,19 @@
 			}
 		};
 		function whitespace(str) {
-			str = _.toStr(str);
+			str = $_.toStr(str);
 			return str ? str.split(/\s+/) : [];
 		}
 		function nonword(str) {
-			str = _.toStr(str);
+			str = $_.toStr(str);
 			return str ? str.split(/\W+/) : [];
 		}
 		function getObjTokenizer(tokenizer) {
 			return function setKey(keys) {
-				keys = _.isArray(keys) ? keys : [].slice.call(arguments, 0);
+				keys = $_.isArray(keys) ? keys : [].slice.call(arguments, 0);
 				return function tokenize(o) {
 					var tokens = [];
-					_.each(keys, function (k) {
+					$_.each(keys, function (k) {
 						tokens = tokens.concat(tokenizer(_.toStr(o[k])));
 					});
 					return tokens;
@@ -51,13 +51,13 @@
 	var LruCache = function () {
 		"use strict";
 		function LruCache(maxSize) {
-			this.maxSize = _.isNumber(maxSize) ? maxSize : 100;
+			this.maxSize = $_.isNumber(maxSize) ? maxSize : 100;
 			this.reset();
 			if (this.maxSize <= 0) {
 				this.set = this.get = $.noop;
 			}
 		}
-		_.mixin(LruCache.prototype, {
+		$_.mixin(LruCache.prototype, {
 			set: function set(key, val) {
 				var tailItem = this.list.tail, node;
 				if (this.size >= this.maxSize) {
@@ -91,7 +91,7 @@
 		function List() {
 			this.head = this.tail = null;
 		}
-		_.mixin(List.prototype, {
+		$_.mixin(List.prototype, {
 			add: function add(node) {
 				if (this.head) {
 					node.next = this.head;
@@ -129,11 +129,11 @@
 		function PersistentStorage(namespace, override) {
 			this.prefix = ["__", namespace, "__"].join("");
 			this.ttlKey = "__ttl__";
-			this.keyMatcher = new RegExp("^" + _.escapeRegExChars(this.prefix));
+			this.keyMatcher = new RegExp("^" + $_.escapeRegExChars(this.prefix));
 			this.ls = override || LOCAL_STORAGE;
 			!this.ls && this._noop();
 		}
-		_.mixin(PersistentStorage.prototype, {
+		$_.mixin(PersistentStorage.prototype, {
 			_prefix: function (key) {
 				return this.prefix + key;
 			},
@@ -141,7 +141,7 @@
 				return this._prefix(key) + this.ttlKey;
 			},
 			_noop: function () {
-				this.get = this.set = this.remove = this.clear = this.isExpired = _.noop;
+				this.get = this.set = this.remove = this.clear = this.isExpired = $_.noop;
 			},
 			_safeSet: function (key, val) {
 				try {
@@ -181,7 +181,7 @@
 			},
 			isExpired: function (key) {
 				var ttl = decode(this.ls.getItem(this._ttlKey(key)));
-				return _.isNumber(ttl) && now() > ttl ? true : false;
+				return $_.isNumber(ttl) && now() > ttl ? true : false;
 			}
 		});
 		return PersistentStorage;
@@ -221,7 +221,7 @@
 		Transport.resetCache = function resetCache() {
 			sharedCache.reset();
 		};
-		_.mixin(Transport.prototype, {
+		$_.mixin(Transport.prototype, {
 			_fingerprint: function fingerprint(o) {
 				o = o || {};
 				return o.url + o.type + $.param(o.data || {});
@@ -259,7 +259,7 @@
 			get: function (o, cb) {
 				var resp, fingerprint;
 				cb = cb || $.noop;
-				o = _.isString(o) ? {
+				o = $_.isString(o) ? {
 					url: o
 				} : o || {};
 				fingerprint = this._fingerprint(o);
@@ -285,24 +285,24 @@
 			if (!o.datumTokenizer || !o.queryTokenizer) {
 				$.error("datumTokenizer and queryTokenizer are both required");
 			}
-			this.identify = o.identify || _.stringify;
+			this.identify = o.identify || $_.stringify;
 			this.datumTokenizer = o.datumTokenizer;
 			this.queryTokenizer = o.queryTokenizer;
 			this.reset();
 		}
-		_.mixin(SearchIndex.prototype, {
+		$_.mixin(SearchIndex.prototype, {
 			bootstrap: function bootstrap(o) {
 				this.datums = o.datums;
 				this.trie = o.trie;
 			},
 			add: function (data) {
 				var that = this;
-				data = _.isArray(data) ? data : [data];
-				_.each(data, function (datum) {
+				data = $_.isArray(data) ? data : [data];
+				$_.each(data, function (datum) {
 					var id, tokens;
 					that.datums[id = that.identify(datum)] = datum;
 					tokens = normalizeTokens(that.datumTokenizer(datum));
-					_.each(tokens, function (token) {
+					$_.each(tokens, function (token) {
 						var node, chars, ch;
 						node = that.trie;
 						chars = token.split("");
@@ -315,14 +315,14 @@
 			},
 			get: function get(ids) {
 				var that = this;
-				return _.map(ids, function (id) {
+				return $_.map(ids, function (id) {
 					return that.datums[id];
 				});
 			},
 			search: function search(query) {
 				var that = this, tokens, matches;
 				tokens = normalizeTokens(this.queryTokenizer(query));
-				_.each(tokens, function (token) {
+				$_.each(tokens, function (token) {
 					var node, chars, ch, ids;
 					if (matches && matches.length === 0) {
 						return false;
@@ -340,7 +340,7 @@
 						return false;
 					}
 				});
-				return matches ? _.map(unique(matches), function (id) {
+				return matches ? $_.map(unique(matches), function (id) {
 					return that.datums[id];
 				}) : [];
 			},
@@ -364,10 +364,10 @@
 		});
 		return SearchIndex;
 		function normalizeTokens(tokens) {
-			tokens = _.filter(tokens, function (token) {
+			tokens = $_.filter(tokens, function (token) {
 				return !!token;
 			});
-			tokens = _.map(tokens, function (token) {
+			tokens = $_.map(tokens, function (token) {
 				return token.toLowerCase();
 			});
 			return tokens;
@@ -425,7 +425,7 @@
 			this.thumbprint = o.thumbprint;
 			this.storage = new PersistentStorage(o.cacheKey);
 		}
-		_.mixin(Prefetch.prototype, {
+		$_.mixin(Prefetch.prototype, {
 			_settings: function settings() {
 				return {
 					url: this.url,
@@ -485,7 +485,7 @@
 				transport: o.transport
 			});
 		}
-		_.mixin(Remote.prototype, {
+		$_.mixin(Remote.prototype, {
 			_settings: function settings() {
 				return {
 					url: this.url,
@@ -517,7 +517,7 @@
 			var defaults, sorter;
 			defaults = {
 				initialize: true,
-				identify: _.stringify,
+				identify: $_.stringify,
 				datumTokenizer: null,
 				queryTokenizer: null,
 				sufficient: 5,
@@ -526,14 +526,14 @@
 				prefetch: null,
 				remote: null
 			};
-			o = _.mixin(defaults, o || {});
+			o = $_.mixin(defaults, o || {});
 			!o.datumTokenizer && $.error("datumTokenizer is required");
 			!o.queryTokenizer && $.error("queryTokenizer is required");
 			sorter = o.sorter;
 			o.sorter = sorter ? function (x) {
 				return x.sort(sorter);
-			} : _.identity;
-			o.local = _.isFunction(o.local) ? o.local() : o.local;
+			} : $_.identity;
+			o.local = $_.isFunction(o.local) ? o.local() : o.local;
 			o.prefetch = parsePrefetch(o.prefetch);
 			o.remote = parseRemote(o.remote);
 			return o;
@@ -549,14 +549,14 @@
 				cache: true,
 				cacheKey: null,
 				thumbprint: "",
-				prepare: _.identity,
-				transform: _.identity,
+				prepare: $_.identity,
+				transform: $_.identity,
 				transport: null
 			};
-			o = _.isString(o) ? {
+			o = $_.isString(o) ? {
 				url: o
 			} : o;
-			o = _.mixin(defaults, o);
+			o = $_.mixin(defaults, o);
 			!o.url && $.error("prefetch requires url to be set");
 			o.transform = o.filter || o.transform;
 			o.cacheKey = o.cacheKey || o.url;
@@ -578,13 +578,13 @@
 				limiter: null,
 				rateLimitBy: "debounce",
 				rateLimitWait: 300,
-				transform: _.identity,
+				transform: $_.identity,
 				transport: null
 			};
-			o = _.isString(o) ? {
+			o = $_.isString(o) ? {
 				url: o
 			} : o;
-			o = _.mixin(defaults, o);
+			o = $_.mixin(defaults, o);
 			!o.url && $.error("remote requires url to be set");
 			o.transform = o.filter || o.transform;
 			o.prepare = toRemotePrepare(o);
@@ -635,12 +635,12 @@
 			return limiter;
 			function debounce(wait) {
 				return function debounce(fn) {
-					return _.debounce(fn, wait);
+					return $_.debounce(fn, wait);
 				};
 			}
 			function throttle(wait) {
 				return function throttle(fn) {
-					return _.throttle(fn, wait);
+					return $_.throttle(fn, wait);
 				};
 			}
 		}
@@ -650,12 +650,12 @@
 				fn(o, onSuccess, onError);
 				return deferred;
 				function onSuccess(resp) {
-					_.defer(function () {
+					$_.defer(function () {
 						deferred.resolve(resp);
 					});
 				}
 				function onError(err) {
-					_.defer(function () {
+					$_.defer(function () {
 						deferred.reject(err);
 					});
 				}
@@ -686,7 +686,7 @@
 			return Bloodhound;
 		};
 		Bloodhound.tokenizers = tokenizers;
-		_.mixin(Bloodhound.prototype, {
+		$_.mixin(Bloodhound.prototype, {
 			__ttAdapter: function ttAdapter() {
 				var that = this;
 				return this.remote ? withAsync : withoutAsync;
@@ -735,7 +735,7 @@
 				return this;
 			},
 			get: function get(ids) {
-				ids = _.isArray(ids) ? ids : [].slice.call(arguments);
+				ids = $_.isArray(ids) ? ids : [].slice.call(arguments);
 				return this.index.get(ids);
 			},
 			search: function search(query, sync, async) {
@@ -750,7 +750,7 @@
 				return this;
 				function processRemote(remote) {
 					var nonDuplicates = [];
-					_.each(remote, function (r) {
+					$_.each(remote, function (r) {
 						!_.some(local, function (l) {
 							return that.identify(r) === that.identify(l);
 						}) && nonDuplicates.push(r);
