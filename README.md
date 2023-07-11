@@ -15,11 +15,11 @@ they can provide a rich typeahead experience.
 2023 Brass9 Update
 ==================
 
-Twitter's Typeahead still works great, but if you try to use it with modern jQuery3, it's going to break - and jQuery migrate is full of warnings.
+Twitter's Typeahead still works great, but if you try to use it with modern jQuery3, it's going to at least warn you in the migrate library, if not outright break due to the removal of deprecated features like `.isFunction`.
 
 It could use an upgrade, and jQuery3 also has underlying principles a decade later worth bringing to typeahead - for example, that oldIE is dead and not worth the extra code to support.
 
-This release upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - an underscore library that was really a jQuery extension, not the popular Underscore library, appeared in both bloodhound in typeahead. In this version it's extracted.* That means you need 3 dist files for a working Typeahead:
+This release upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - an underscore library that was really a jQuery extension, not the popular Underscore library, appeared in both bloodhound and typeahead. In this version it's extracted.* That means you need 3 dist files for a working Typeahead:
 
 	typeahead-underscore.js
 	bloodhound.js
@@ -215,7 +215,7 @@ it with [typeahead.js][so tag].
 [Stack Overflow]: http://stackoverflow.com/
 [so tag]: http://stackoverflow.com/questions/tagged/typeahead.js
 
-Twitter has not touched this in a decade and now news article about them tend to include the word "implosion" but you could also visit https://twitter.com/typeahead
+Twitter has not touched this in a decade and now news articles about them tend to include the word "implosion" but you could also visit https://twitter.com/typeahead
 
 License
 -------
