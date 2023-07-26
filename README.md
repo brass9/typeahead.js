@@ -1,25 +1,28 @@
-typeahead.js 2013
-============================
+# typeahead.js 2013
+
 
 Inspired by [twitter.com]'s autocomplete search functionality, typeahead.js is 
 a flexible JavaScript library that provides a strong foundation for building 
 robust typeaheads.
 
-The typeahead.js library consists of 2 components: the suggestion engine, 
-Bloodhound, and the UI view, Typeahead. 
+The typeahead.js library consists of 3 components:
+* Bloodhound - a mini client-side database for search results
+* Typeahead - the UI for the suggestion engine
+* Twitter jQuery Extensions, `$_` - a small library shared across the other 2 components
+
 The suggestion engine is responsible for computing suggestions for a given 
 query. The UI view is responsible for rendering suggestions and handling DOM 
 interactions. Both components can be used separately, but when used together, 
 they can provide a rich typeahead experience.
 
-2023 Brass9 Update
-==================
+
+# 2023 Brass9 Update
 
 Twitter's Typeahead still works great, but if you try to use it with modern jQuery3, it's going to at least warn you in the migrate library, if not outright break due to the removal of deprecated features like `.isFunction`.
 
 It could use an upgrade, and jQuery3 also has underlying principles a decade later worth bringing to typeahead - for example, that oldIE is dead and not worth the extra code to support.
 
-This release upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - an underscore library that was really a jQuery extension, not the popular Underscore library, appeared in both bloodhound and typeahead. In this version it's extracted.* That means you need 3 dist files for a working Typeahead:
+This fork upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - a jQuery extension library named "_" (but, was not the popular Underscore library) that appeared in both bloodhound and typeahead. In this version it's extracted. That means you need 3 dist files (in this order) for a working Typeahead:
 
 	typeahead-underscore.js
 	bloodhound.js
@@ -27,10 +30,9 @@ This release upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldI
 
 Also note that typeahead.jquery.js is misleading; it might make it seem like it's the only part that depends on jQuery. In fact all 3 files do (and Bloodhound always did). So, jquery-3.7.0.js (or higher) should be loaded before these 3 files.
 
-*The shared $_ library may ultimately be eliminated entirely by leveraging the past decade of Javascript language improvements.
 
-Getting Started
----------------
+
+## Getting Started
 
 The 2023 update requires jquery3.7.x+.
 
@@ -67,7 +69,7 @@ Javascript:
 			},
 			{
 				// Config section 2
-				source: bloodhound.ttAdapter(),
+				source: bloodhound,
 			});
 		});
 
@@ -85,8 +87,7 @@ That's it! You've got a working typeahead! You might want to nice it up slightly
 
 That will help stress what in the results matches what the user has typed so far.
 
-Documentation 
--------------
+## Documentation 
 
 ## 2013 Documentation
 
@@ -126,7 +127,7 @@ You're probably going to want to style all of this, so here's an explanation of 
 
 `tt-cursor` Marks the highlighted item - when the user taps the up/down keys on their keyboard, they can move up and down the results list, and tt-cursor follows that selection around.
 
-`strong.tt-highlight` Marks the highlighted portion of the text in a result. Note that there's no tag wrapping the remainder of the result, and, that after a few characters it's easy to get yourself into a situation where the leading character is not what's highlighted. For example someone searching for "or" in this test dataset is going to get (shorthand) `F<>or</>d` So, if you want to style characters that are not in the result, you'll likely need to consider how your highlight style sits on top of the non-highlighted style.
+`strong.tt-highlight` Marks the highlighted portion of the text in a result. Note that there's no tag wrapping the remainder of the result, and, that after a few characters it's easy to get yourself into a situation where the leading character is not what's highlighted. For example someone searching for "or" in this test dataset is going to get (shorthand) `F<>or</>d` So, if you want to style characters that are not in the result, you'll need to consider how your highlight style sits on top of the non-highlighted style.
 
 ### Basic Style Options
 
@@ -184,6 +185,29 @@ Regardless of your data type, the output from this template may surprise you. It
 
 The Typeahead is going to insert its classes back into the tags you give it, to the best of its ability. So if you have existing styles on these you were trying to get away from, by overriding the HTML like this, unfortunately this won't do the trick for you.
 
+### Data Source
+
+The `source` argument allows suggestion engines other than Bloodhound, or, wrappers around Bloodhound to vary what is provided when. The source argument takes a function, not an object:
+
+	source: function(query, syncCallback, asyncCallback)
+
+
+
+#### A Note on .ttAdapter()
+
+In some examples of the Typeahead (and some older versions of it), Bloodhound instances are referenced like:
+
+	source: bloodhound.ttAdapter()
+
+You no longer need to do this - you can just pass the Bloodhound instance:
+
+	source: bloodhound
+
+That's because both sides are playing sneaky games. Bloodhound aliases its internal function (exposed as public because Javascript) `.__ttAdapter()` as `.ttAdapter()`. And then the Typeahead has a class called `Dataset` that accepts your source property, and when it initializes it checks for a method named, `__ttAdapter()`.
+
+So, when a Bloodhound instance is passed as a source, even though the Typeahead is supposed to take a function with 3 arguments, this sneaky arrangement occurs and the instance works without explicitly calling it yourself. You could write your own class as data source, and provide a sneaky `.__ttAdapter()`, and it would work passed as-is as an object to the source property as well.
+
+
 <!-- section links -->
 
 [2013 Documentation]: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
@@ -215,7 +239,7 @@ it with [typeahead.js][so tag].
 [Stack Overflow]: http://stackoverflow.com/
 [so tag]: http://stackoverflow.com/questions/tagged/typeahead.js
 
-Twitter has not touched this in a decade and now news articles about them tend to include the word "implosion" but you could also visit https://twitter.com/typeahead
+Twitter has not touched this in a decade and may no longer exist, but you could also visit https://twitter.com/typeahead
 
 License
 -------
