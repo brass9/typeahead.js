@@ -41,7 +41,7 @@ var Transport = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Transport.prototype, {
+  $_.mixin(Transport.prototype, {
 
     // ### private
 
@@ -103,7 +103,7 @@ var Transport = (function() {
       var resp, fingerprint;
 
       cb = cb || $.noop;
-      o = _.isString(o) ? { url: o } : (o || {});
+      o = $_.isString(o) ? { url: o } : (o || {});
 
       fingerprint = this._fingerprint(o);
 

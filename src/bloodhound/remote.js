@@ -25,7 +25,7 @@ var Remote = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Remote.prototype, {
+  $_.mixin(Remote.prototype, {
     // ### private
 
     _settings: function settings() {

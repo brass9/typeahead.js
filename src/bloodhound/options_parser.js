@@ -12,7 +12,7 @@ var oParser = (function() {
 
     defaults = {
       initialize: true,
-      identify: _.stringify,
+      identify: $_.stringify,
       datumTokenizer: null,
       queryTokenizer: null,
       sufficient: 5,
@@ -22,16 +22,16 @@ var oParser = (function() {
       remote: null
     };
 
-    o = _.mixin(defaults, o || {});
+    o = $_.mixin(defaults, o || {});
 
     // throw error if required options are not set
     !o.datumTokenizer && $.error('datumTokenizer is required');
     !o.queryTokenizer && $.error('queryTokenizer is required');
 
     sorter = o.sorter;
-    o.sorter = sorter ? function(x) { return x.sort(sorter); } : _.identity;
+    o.sorter = sorter ? function(x) { return x.sort(sorter); } : $_.identity;
 
-    o.local = _.isFunction(o.local) ? o.local() : o.local;
+    o.local = $_.isFunction(o.local) ? o.local() : o.local;
     o.prefetch = parsePrefetch(o.prefetch);
     o.remote = parseRemote(o.remote);
 
@@ -49,14 +49,14 @@ var oParser = (function() {
       cache: true,
       cacheKey: null,
       thumbprint: '',
-      prepare: _.identity,
-      transform: _.identity,
+      prepare: $_.identity,
+      transform: $_.identity,
       transport: null
     };
 
     // support basic (url) and advanced configuration
-    o = _.isString(o) ? { url: o } : o;
-    o = _.mixin(defaults, o);
+    o = $_.isString(o) ? { url: o } : o;
+    o = $_.mixin(defaults, o);
 
     // throw error if required options are not set
     !o.url && $.error('prefetch requires url to be set');
@@ -85,13 +85,13 @@ var oParser = (function() {
       limiter: null,
       rateLimitBy: 'debounce',
       rateLimitWait: 300,
-      transform: _.identity,
+      transform: $_.identity,
       transport: null
     };
 
     // support basic (url) and advanced configuration
-    o = _.isString(o) ? { url: o } : o;
-    o = _.mixin(defaults, o);
+    o = $_.isString(o) ? { url: o } : o;
+    o = $_.mixin(defaults, o);
 
     // throw error if required options are not set
     !o.url && $.error('remote requires url to be set');
@@ -163,11 +163,11 @@ var oParser = (function() {
     return limiter;
 
     function debounce(wait) {
-      return function debounce(fn) { return _.debounce(fn, wait); };
+      return function debounce(fn) { return $_.debounce(fn, wait); };
     }
 
     function throttle(wait) {
-      return function throttle(fn) { return _.throttle(fn, wait); };
+      return function throttle(fn) { return $_.throttle(fn, wait); };
     }
   }
 
@@ -182,13 +182,13 @@ var oParser = (function() {
       function onSuccess(resp) {
         // defer in case fn is synchronous, otherwise done
         // and always handlers will be attached after the resolution
-        _.defer(function() { deferred.resolve(resp); });
+        $_.defer(function() { deferred.resolve(resp); });
       }
 
       function onError(err) {
         // defer in case fn is synchronous, otherwise done
         // and always handlers will be attached after the resolution
-        _.defer(function() { deferred.reject(err); });
+        $_.defer(function() { deferred.reject(err); });
       }
     };
   }

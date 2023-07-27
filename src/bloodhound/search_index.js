@@ -19,7 +19,7 @@ var SearchIndex = window.SearchIndex = (function() {
       $.error('datumTokenizer and queryTokenizer are both required');
     }
 
-    this.identify = o.identify || _.stringify;
+    this.identify = o.identify || $_.stringify;
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
 
@@ -29,7 +29,7 @@ var SearchIndex = window.SearchIndex = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(SearchIndex.prototype, {
+  $_.mixin(SearchIndex.prototype, {
 
     // ### public
 
@@ -41,15 +41,15 @@ var SearchIndex = window.SearchIndex = (function() {
     add: function(data) {
       var that = this;
 
-      data = _.isArray(data) ? data : [data];
+      data = $_.isArray(data) ? data : [data];
 
-      _.each(data, function(datum) {
+      $_.each(data, function(datum) {
         var id, tokens;
 
         that.datums[id = that.identify(datum)] = datum;
         tokens = normalizeTokens(that.datumTokenizer(datum));
 
-        _.each(tokens, function(token) {
+        $_.each(tokens, function(token) {
           var node, chars, ch;
 
           node = that.trie;
@@ -66,7 +66,7 @@ var SearchIndex = window.SearchIndex = (function() {
     get: function get(ids) {
       var that = this;
 
-      return _.map(ids, function(id) { return that.datums[id]; });
+      return $_.map(ids, function(id) { return that.datums[id]; });
     },
 
     search: function search(query) {
@@ -74,7 +74,7 @@ var SearchIndex = window.SearchIndex = (function() {
 
       tokens = normalizeTokens(this.queryTokenizer(query));
 
-      _.each(tokens, function(token) {
+      $_.each(tokens, function(token) {
         var node, chars, ch, ids;
 
         // previous tokens didn't share any matches
@@ -102,7 +102,7 @@ var SearchIndex = window.SearchIndex = (function() {
       });
 
       return matches ?
-        _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
+        $_.map(unique(matches), function(id) { return that.datums[id]; }) : [];
     },
 
     all: function all() {
@@ -132,10 +132,10 @@ var SearchIndex = window.SearchIndex = (function() {
 
   function normalizeTokens(tokens) {
    // filter out falsy tokens
-    tokens = _.filter(tokens, function(token) { return !!token; });
+    tokens = $_.filter(tokens, function(token) { return !!token; });
 
     // normalize tokens
-    tokens = _.map(tokens, function(token) { return token.toLowerCase(); });
+    tokens = $_.map(tokens, function(token) { return token.toLowerCase(); });
 
     return tokens;
   }

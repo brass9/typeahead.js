@@ -10,7 +10,7 @@ var LruCache = (function() {
   'use strict';
 
   function LruCache(maxSize) {
-    this.maxSize = _.isNumber(maxSize) ? maxSize : 100;
+    this.maxSize = $_.isNumber(maxSize) ? maxSize : 100;
     this.reset();
 
     // if max size is less than 0, provide a noop cache
@@ -19,7 +19,7 @@ var LruCache = (function() {
     }
   }
 
-  _.mixin(LruCache.prototype, {
+  $_.mixin(LruCache.prototype, {
     set: function set(key, val) {
       var tailItem = this.list.tail, node;
 
@@ -68,7 +68,7 @@ var LruCache = (function() {
     this.head = this.tail = null;
   }
 
-  _.mixin(List.prototype, {
+  $_.mixin(List.prototype, {
     add: function add(node) {
       if (this.head) {
         node.next = this.head;

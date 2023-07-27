@@ -26,7 +26,7 @@ var PersistentStorage = (function() {
   function PersistentStorage(namespace, override) {
     this.prefix = ['__', namespace, '__'].join('');
     this.ttlKey = '__ttl__';
-    this.keyMatcher = new RegExp('^' + _.escapeRegExChars(this.prefix));
+    this.keyMatcher = new RegExp('^' + $_.escapeRegExChars(this.prefix));
 
     // for testing purpose
     this.ls = override || LOCAL_STORAGE;
@@ -38,7 +38,7 @@ var PersistentStorage = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(PersistentStorage.prototype, {
+  $_.mixin(PersistentStorage.prototype, {
     // ### private
 
     _prefix: function(key) {
@@ -54,7 +54,7 @@ var PersistentStorage = (function() {
       this.set =
       this.remove =
       this.clear =
-      this.isExpired = _.noop;
+      this.isExpired = $_.noop;
     },
 
     _safeSet: function(key, val) {
@@ -80,7 +80,7 @@ var PersistentStorage = (function() {
     },
 
     set: function(key, val, ttl) {
-      if (_.isNumber(ttl)) {
+      if ($_.isNumber(ttl)) {
         this._safeSet(this._ttlKey(key), encode(now() + ttl));
       }
 
@@ -111,7 +111,7 @@ var PersistentStorage = (function() {
     isExpired: function(key) {
       var ttl = decode(this.ls.getItem(this._ttlKey(key)));
 
-      return _.isNumber(ttl) && now() > ttl ? true : false;
+      return $_.isNumber(ttl) && now() > ttl ? true : false;
     }
   });
 
@@ -126,7 +126,7 @@ var PersistentStorage = (function() {
 
   function encode(val) {
     // convert undefined to null to avoid issues with JSON.parse
-    return JSON.stringify(_.isUndefined(val) ? null : val);
+    return JSON.stringify($_.isUndefined(val) ? null : val);
   }
 
   function decode(val) {

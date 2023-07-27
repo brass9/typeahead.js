@@ -49,7 +49,7 @@ var Bloodhound = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Bloodhound.prototype, {
+  $_.mixin(Bloodhound.prototype, {
 
     // ### super secret stuff used for integration with jquery plugin
 
@@ -125,7 +125,7 @@ var Bloodhound = (function() {
     },
 
     get: function get(ids) {
-      ids = _.isArray(ids) ? ids : [].slice.call(arguments);
+      ids = $_.isArray(ids) ? ids : [].slice.call(arguments);
       return this.index.get(ids);
     },
 
@@ -153,8 +153,8 @@ var Bloodhound = (function() {
         var nonDuplicates = [];
 
         // exclude duplicates
-        _.each(remote, function(r) {
-           !_.some(local, function(l) {
+        $_.each(remote, function(r) {
+           !$_.some(local, function(l) {
             return that.identify(r) === that.identify(l);
           }) && nonDuplicates.push(r);
         });

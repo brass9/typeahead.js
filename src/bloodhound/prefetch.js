@@ -30,7 +30,7 @@ var Prefetch = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Prefetch.prototype, {
+  $_.mixin(Prefetch.prototype, {
 
     // ### private
 
