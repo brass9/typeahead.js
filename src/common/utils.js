@@ -4,16 +4,10 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-var _ = (function() {
+var $_ = (function() {
   'use strict';
 
   return {
-    isMsie: function() {
-      // from https://github.com/ded/bowser/blob/master/bowser.js
-      return (/(msie|trident)/i).test(navigator.userAgent) ?
-        navigator.userAgent.match(/(msie |rv:)(\d+(.\d+)?)/i)[2] : false;
-    },
-
     isBlankString: function(str) { return !str || /^\s*$/.test(str); },
 
     // http://stackoverflow.com/a/6969486
@@ -25,9 +19,9 @@ var _ = (function() {
 
     isNumber: function(obj) { return typeof obj === 'number'; },
 
-    isArray: $.isArray,
+    isArray: Array.isArray,
 
-    isFunction: $.isFunction,
+    isFunction: fn => typeof fn === 'function',
 
     isObject: $.isPlainObject,
 
@@ -38,7 +32,7 @@ var _ = (function() {
     isJQuery: function(obj) { return obj instanceof $; },
 
     toStr: function toStr(s) {
-      return (_.isUndefined(s) || s === null) ? '' : s + '';
+      return ($_.isUndefined(s) || s === null) ? '' : s + '';
     },
 
     bind: $.proxy,
@@ -94,7 +88,7 @@ var _ = (function() {
     },
 
     templatify: function templatify(obj) {
-      return $.isFunction(obj) ? obj : template;
+      return $_.isFunction(obj) ? obj : template;
 
       function template() { return String(obj); }
     },
@@ -156,7 +150,7 @@ var _ = (function() {
     },
 
     stringify: function(val) {
-      return _.isString(val) ? val : JSON.stringify(val);
+      return $_.isString(val) ? val : JSON.stringify(val);
     },
 
     noop: function() {}

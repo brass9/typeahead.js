@@ -15,6 +15,11 @@ query. The UI view is responsible for rendering suggestions and handling DOM
 interactions. Both components can be used separately, but when used together, 
 they can provide a rich typeahead experience.
 
+Examples
+--------
+
+2013 Examples: http://twitter.github.io/typeahead.js/examples
+
 
 # 2023 Brass9 Update
 
@@ -87,14 +92,14 @@ That's it! You've got a working typeahead! You might want to nice it up slightly
 
 That will help stress what in the results matches what the user has typed so far.
 
-## Documentation 
+# Documentation 
 
-## 2013 Documentation
+# 2013 Documentation
 
 Bloodhound: https://github.com/twitter/typeahead.js/blob/master/doc/bloodhound.md
 Typeahead: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
 
-## 2023 Documentation
+# 2023 Documentation
 
 First let's cover the basic Getting Started Example we just used. The above code does a lot to your HTML in the DOM. It actually duplicates the input tag so it can provide a cleaner typeahead appearance, which if you wrote out in HTML would look like this:
 
@@ -129,17 +134,17 @@ You're probably going to want to style all of this, so here's an explanation of 
 
 `strong.tt-highlight` Marks the highlighted portion of the text in a result. Note that there's no tag wrapping the remainder of the result, and, that after a few characters it's easy to get yourself into a situation where the leading character is not what's highlighted. For example someone searching for "or" in this test dataset is going to get (shorthand) `F<>or</>d` So, if you want to style characters that are not in the result, you'll need to consider how your highlight style sits on top of the non-highlighted style.
 
-### Basic Style Options
+## Basic Style Options
 
 hint, highlight, minlength, classNames. See [2013 Documentation].
 
-### Advanced Style Options
+## Advanced Style Options
 
 The second config section offers templates, which will change the HTML the Typeahead inserts into the DOM for different parts of itself.
 
 For a full list see [2013 Documentation].
 
-#### Templates
+### Templates
 
 `suggestion`
 
@@ -185,15 +190,18 @@ Regardless of your data type, the output from this template may surprise you. It
 
 The Typeahead is going to insert its classes back into the tags you give it, to the best of its ability. So if you have existing styles on these you were trying to get away from, by overriding the HTML like this, unfortunately this won't do the trick for you.
 
-### Data Source
+## Data Source
 
 The `source` argument allows suggestion engines other than Bloodhound, or, wrappers around Bloodhound to vary what is provided when. The source argument takes a function, not an object:
 
 	source: function(query, syncCallback, asyncCallback)
 
 
+## Bloodhound
 
-#### A Note on .ttAdapter()
+You are most likely going to use the default, Bloodhound, to provide the Typeahead's data source.
+
+### A Note on .ttAdapter()
 
 In some examples of the Typeahead (and some older versions of it), Bloodhound instances are referenced like:
 
@@ -207,15 +215,130 @@ That's because both sides are playing sneaky games. Bloodhound aliases its inter
 
 So, when a Bloodhound instance is passed as a source, even though the Typeahead is supposed to take a function with 3 arguments, this sneaky arrangement occurs and the instance works without explicitly calling it yourself. You could write your own class as data source, and provide a sneaky `.__ttAdapter()`, and it would work passed as-is as an object to the source property as well.
 
+### Typeahead-Bloodhound Overall Flow
+
+As the user types, typeahead.jquery.js consumes the key strokes and throws them to a throttle function. That limits how many overall events it will respond. As the throttle function allows, the next stage of the Typeahead code hands the typed keys off to the data source, which is usually Bloodhound.
+
+(Bloodhound can be pre-filled with a prefetch - see below.)
+
+Bloodhound consumes the keys typed so far - the query - and applies the queryTokenizer to it. By default this just breaks up what's been typed by the space character (or other whitespace). It then fires what is usually a remote query against the server endpoint, but, it could be a local query instead.
+
+See below for details on this query, but the basic configuration fires just one query for all results. Using a wildcard, replace or prepare option (see below) increases this - by default to one remote query per throttled keystroke.
+
+### Basics
+
+You'll generally use a simple Bloodhound source like:
+
+	source: new Bloodhound({
+		remote: '/typeaheadjson',
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		datumTokenizer: Bloodhound.tokenizers.whitespace
+	})
+
+If the data source is returning a simple array of strings, that's all you need, but if it's
+returning complex JSON you have to at least tell it where to find the name and id of each data item:
+
+	source: new Bloodhound({
+		remote: '/typeaheadjson',
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		identify: d => d.id,
+		datumTokenizer: d => Bloodhound.tokenizers.whitespace(d.name)
+	})
+
+Here you can see the datumTokenizer is now a function that passes a property that represents the plaintext result the user will see (`.name` in our case), and identify points to a unique Id for each data result (`.id` in our case).
+
+#### .id property
+
+Note that the ID for identify is required, but, may not be what you expect. It has to be unique to the client-side, but, it doesn't need to be anything else. For example, suppose you had rows in a table on the server you were packing and sending to the client-side. The obvious thing to do is send each row to the client, with the unique server-side ID from the database - and that will work great.
+
+But, suppose you instead have a projection of the database, with multiple plaintext suggestions for a single database row, to help users find results. Now your database IDs, if you used them as-is, are going to repeat, and that's going to cause a weird problem. In short, this projection would have a lot of data missing in the typeahead. Your suggestions will get internalized by Bloodhound with the assumption each ID is unique *to the client-side*. It doesn't care about the server-side at all, but it is going to naively use those IDs to index and store your data - one entry per ID.
+
+In such a projection scenario, you have to ensure you provide IDs that are unique to the client-side, but, they have no other requirements. Just an arbitrary counter that ticks up row by row as the projected data heads out to the client is fine.
+
+### Remote
+
+You can break out the remote into a full options object, accomplishing the exact same thing:
+
+	source: new Bloodhound({
+		remote: {
+			url: '/typeaheadjson'
+		},
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		datumTokenizer: Bloodhound.tokenizers.whitespace
+	})
+
+You can also provide 2 URLs, one for a prefetch to speed up first results, and one for broader search:
+
+	source: new Bloodhound({
+		prefetch:	'/typeaheadprefetchjson',
+		remote: '/typeaheadjson',
+		...
+	})
+
+If you have limited control over your remote, or, multiple typeaheads using the same data you want to be cached, or an API you don't want to change to suit the Typeahead, you can sacrifice some performance by applying transforms to the incoming data (you can apply same to prefetch):
+
+	remote: {
+		url: '...',
+		prepare: function(),
+		transform: function(),
+	}
+
+By default, prefetch and remote are ruthlessly simple. prefetch gets called exactly once, with a fast, ideally cached baseline of data (if you're personalizing search results in any way, you might want to forego that for the prefetch to avoid the slowdown of a database hit). remote gets called ...exactly once as well, unless you provide more options. So all-in this is going to be 2 queries, and, the remote call had better return everything the user might ever want to know. Depending on the size of your results, you may need to evaluate browser LocalStorage limits and how large your dataset is, taking into account other LocalStorage usage on your page as well.
+
+#### Remote queries
+
+You can get the remote to pass an actual query that the user typed like so:
+
+	source: new Bloodhound({
+		remote: {
+			url: '/typeaheadjson?q=query',
+			wildcard: 'query'
+		}
+	}
+
+Each time Bloodhound hits its local Db and turns up too few results, it's going to pass the query to the server-side, performing a dead-simple Regex replace on your url string - in this case replacing the phrase "query" with what the user typed. So if the user typed "Fo", the server is going to get hit with a GET at /typeaheadjson?q=fo
+
+Behind the scenes, this is building a prepare function for you. You can get more advanced (if you need to) by passing a replace function of your own in like:
+
+	remote: {
+		url: '/typeaheadjson?q=query',
+		replace: (url, q) => url.replace(/query/, q)
+
+In this case we're just doing a simple regex replace, but, you could do much more complex URL transforms here if you wanted to - for example you could react to the contents of the query and send a reformatted alternative to one of many endpoints (although if you are going to go this far, you are probably overengineering it and should leverage the multiple Datasets instead).
+
+Finally if you need to override things per-request you can outright write your own prepare function:
+
+	remote: {
+		url: '/typeaheadjson?q=query',
+		prepare: (o, q) => {
+			o.url = url.replace(/query/, q);
+			return o;
+		}
+
+The entire remote options object is passed in, in the first argument, and anything you return in the resulting options object will be reflected in this remote call.
+
+#### Example for use of replace/prepare
+
+The queries to the server are already throttled by default - once per 300ms - and cached. But, you can further decrease hits to the server and increase cacheability by trimming queries at exponential intervals like so:
+
+	replace: (url, q) => {
+		const len = q.length;
+		const powerof2 = [0, 2, 4, 8, 16, 32].reduce((prev, curr) => len >= curr ? curr : prev);
+		q = q.substr(0, powerof2);
+		return url.replace('query', q);
+	}
+
+If someone types 0 or 1 characters, this trims the result to nothing, so ?q= (no query passed) is sent to the server - a very cacheable URL. If they type 2-3 characters, the first 2 will be passed. So typing 'for' is going to trigger 2 queries, both for ?q=fo - and because of caching, only the first will be sent. And so forth, at intervals 4, 8, 16 and 32. If that makes sense you can stop reading now. If you'd like to better understand this example and how Bloodhound reacts, read on.
+
+Bloodhound never reduces its LocalStorage usage as long as the page remains open, so you could use this strategy to provide results that have not already been sent (and nothing else). For example, if you send enough top results for 0 and 1 characters when 0 characters is sent above, the most efficient thing to return for ?q=fo is the top results for those 2 characters, plus every possible third character, *except* the results sent for 0-1. Sending those again is easier to write on the server, and easier to think about, but it's going to be a waste to the client, since Bloodhound is going to just see they're already in the index and discard them (leaving what it already has in-place).
+
+Likewise, an optimal response for 4 characters should provide the top results for those 4, plus every possible 5, 6, and 7 char combo - except the results already sent for the first 2, and, 0 chars.
+
+
 
 <!-- section links -->
 
 [2013 Documentation]: https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-
-Examples
---------
-
-2013 Examples: http://twitter.github.io/typeahead.js/examples
 
 
 Browser Support

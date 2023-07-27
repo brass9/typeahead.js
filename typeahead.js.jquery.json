@@ -5,9 +5,9 @@
     }
   ],
   "dependencies": {
-    "jquery": ">=1.7"
+    "jquery": ">=3.7"
   },
-  "docs": "https://github.com/twitter/typeahead.js",
+  "docs": "https://github.com/brass9/typeahead.js",
   "demo": "http://twitter.github.com/typeahead.js/examples",
   "name": "typeahead.js",
   "title": "typeahead.js",
@@ -20,21 +20,13 @@
     "typeahead",
     "autocomplete"
   ],
-  "homepage": "http://twitter.github.com/typeahead.js",
+  "homepage": "https://github.com/brass9/typeahead.js",
   "bugs": "https://github.com/twitter/typeahead.js/issues",
   "maintainers": [
     {
-      "name": "Jake Harding",
-      "url": "https://twitter.com/JakeHarding"
-    },
-    {
-      "name": "Tim Trueman",
-      "url": "https://twitter.com/timtrueman"
-    },
-    {
-      "name": "Veljko Skarich",
-      "url": "https://twitter.com/vskarich"
+      "name": "Chris Moschini",
+      "url": "https://github.com/b9chris"
     }
   ],
-  "version": "0.11.1"
+  "version": "0.2.0"
 }

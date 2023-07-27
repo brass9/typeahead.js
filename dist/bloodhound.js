@@ -41,7 +41,7 @@
 				return function tokenize(o) {
 					var tokens = [];
 					$_.each(keys, function (k) {
-						tokens = tokens.concat(tokenizer(_.toStr(o[k])));
+						tokens = tokens.concat(tokenizer($_.toStr(o[k])));
 					});
 					return tokens;
 				};
@@ -160,7 +160,7 @@
 				return decode(this.ls.getItem(this._prefix(key)));
 			},
 			set: function (key, val, ttl) {
-				if (_.isNumber(ttl)) {
+				if ($_.isNumber(ttl)) {
 					this._safeSet(this._ttlKey(key), encode(now() + ttl));
 				} else {
 					this.ls.removeItem(this._ttlKey(key));
@@ -189,10 +189,10 @@
 			return new Date().getTime();
 		}
 		function encode(val) {
-			return JSON.stringify(_.isUndefined(val) ? null : val);
+			return JSON.stringify($_.isUndefined(val) ? null : val);
 		}
 		function decode(val) {
-			return $.parseJSON(val);
+			return JSON.parse(val);
 		}
 		function gatherMatchingKeys(keyMatcher) {
 			var i, key, keys = [], len = LOCAL_STORAGE.length;
@@ -751,7 +751,7 @@
 				function processRemote(remote) {
 					var nonDuplicates = [];
 					$_.each(remote, function (r) {
-						!_.some(local, function (l) {
+						!$_.some(local, function (l) {
 							return that.identify(r) === that.identify(l);
 						}) && nonDuplicates.push(r);
 					});

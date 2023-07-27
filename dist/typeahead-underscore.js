@@ -93,7 +93,7 @@
 				};
 			},
 			templatify: function templatify(obj) {
-				return $.isFunction(obj) ? obj : template;
+				return $_.isFunction(obj) ? obj : template;
 				function template() {
 					return String(obj);
 				}
