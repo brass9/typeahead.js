@@ -19,6 +19,7 @@
 })(this, function ($, $_) {
 	var VERSION = "0.2.0";
 
+
 	var tokenizers = (function() {
 	  'use strict';
 
@@ -57,6 +58,7 @@
 	    };
 	  }
 	})();
+
 	var LruCache = (function() {
 	  'use strict';
 
@@ -150,6 +152,7 @@
 	  return LruCache;
 
 	})();
+
 	var PersistentStorage = (function() {
 	  'use strict';
 
@@ -291,6 +294,7 @@
 	    return keys;
 	  }
 	})();
+
 	var Transport = (function() {
 	  'use strict';
 
@@ -415,6 +419,7 @@
 
 	  return Transport;
 	})();
+
 	var SearchIndex = window.SearchIndex = (function() {
 	  'use strict';
 
@@ -600,6 +605,7 @@
 	    return intersection;
 	  }
 	})();
+
 	var Prefetch = (function() {
 	  'use strict';
 
@@ -685,6 +691,7 @@
 
 	  return Prefetch;
 	})();
+
 	var Remote = (function() {
 	  'use strict';
 
@@ -737,6 +744,7 @@
 
 	  return Remote;
 	})();
+
 	var oParser = (function() {
 	  'use strict';
 
@@ -926,6 +934,7 @@
 	    };
 	  }
 	})();
+
 	var Bloodhound = (function() {
 	  'use strict';
 
@@ -1112,6 +1121,7 @@
 
 	  return Bloodhound;
 	})();
+
 
 	return Bloodhound;
 });

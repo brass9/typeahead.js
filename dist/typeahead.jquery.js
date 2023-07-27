@@ -18,6 +18,7 @@
 	}
 })(this, function ($, $_) {
 
+
 	var WWW = (function() {
 	  'use strict';
 
@@ -116,6 +117,7 @@
 	    return css;
 	  }
 	})();
+
 	var EventBus = (function() {
 	  'use strict';
 
@@ -188,6 +190,7 @@
 
 	  return EventBus;
 	})();
+
 	var EventEmitter = (function() {
 	  'use strict';
 
@@ -299,6 +302,7 @@
 	      function() { fn.apply(context, [].slice.call(arguments, 0)); };
 	  }
 	})();
+
 	var highlight = (function(doc) {
 	  'use strict';
 
@@ -375,6 +379,7 @@
 	    return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, 'i');
 	  }
 	})(window.document);
+
 	var Input = (function() {
 	  'use strict';
 
@@ -692,6 +697,7 @@
 	    return $e.altKey || $e.ctrlKey || $e.metaKey || $e.shiftKey;
 	  }
 	})();
+
 	var Dataset = (function() {
 	  'use strict';
 
@@ -1016,6 +1022,7 @@
 	    return (/^[_a-zA-Z0-9-]+$/).test(str);
 	  }
 	})();
+
 	var Menu = (function() {
 	  'use strict';
 
@@ -1227,6 +1234,7 @@
 
 	  return Menu;
 	})();
+
 	var DefaultMenu = (function() {
 	  'use strict';
 
@@ -1296,6 +1304,7 @@
 
 	  return DefaultMenu;
 	})();
+
 	var Typeahead = (function() {
 	  'use strict';
 
@@ -1720,6 +1729,7 @@
 	    };
 	  }
 	})();
+
 	(function() {
 	  'use strict';
 
@@ -2005,6 +2015,7 @@
 	    return $el.length ? $el : null;
 	  }
 	})();
+
 
 });
 
