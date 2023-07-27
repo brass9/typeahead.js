@@ -21,7 +21,7 @@ var highlight = (function(doc) {
   return function hightlight(o) {
     var regex;
 
-    o = _.mixin({}, defaults, o);
+    o = $_.mixin({}, defaults, o);
 
     if (!o.node || !o.pattern) {
       // fail silently
@@ -29,7 +29,7 @@ var highlight = (function(doc) {
     }
 
     // support wrapping multiple patterns
-    o.pattern = _.isArray(o.pattern) ? o.pattern : [o.pattern];
+    o.pattern = $_.isArray(o.pattern) ? o.pattern : [o.pattern];
 
     regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
     traverse(o.node, hightlightTextNode);
@@ -72,7 +72,7 @@ var highlight = (function(doc) {
     var escapedPatterns = [], regexStr;
 
     for (var i = 0, len = patterns.length; i < len; i++) {
-      escapedPatterns.push(_.escapeRegExChars(patterns[i]));
+      escapedPatterns.push($_.escapeRegExChars(patterns[i]));
     }
 
     regexStr = wordsOnly ?

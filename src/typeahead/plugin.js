@@ -24,7 +24,7 @@
     initialize: function initialize(o, datasets) {
       var www;
 
-      datasets = _.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
+      datasets = $_.isArray(datasets) ? datasets : [].slice.call(arguments, 1);
 
       o = o || {};
       www = WWW(o.classNames);
@@ -37,7 +37,7 @@
 
         // highlight is a top-level config that needs to get inherited
         // from all of the datasets
-        _.each(datasets, function(d) { d.highlight = !!o.highlight; });
+        $_.each(datasets, function(d) { d.highlight = !!o.highlight; });
 
         $input = $(this);
         $wrapper = $(www.html.wrapper);
@@ -264,8 +264,8 @@
 
     // need to remove attrs that weren't previously defined and
     // revert attrs that originally had a value
-    _.each($input.data(keys.attrs), function(val, key) {
-      _.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
+    $_.each($input.data(keys.attrs), function(val, key) {
+      $_.isUndefined(val) ? $input.removeAttr(key) : $input.attr(key, val);
     });
 
     $input
@@ -283,7 +283,7 @@
   function $elOrNull(obj) {
     var isValid, $el;
 
-    isValid = _.isJQuery(obj) || _.isElement(obj);
+    isValid = $_.isJQuery(obj) || $_.isElement(obj);
     $el = isValid ? $(obj).first() : [];
 
     return $el.length ? $el : null;

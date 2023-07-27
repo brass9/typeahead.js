@@ -25,7 +25,7 @@ var Menu = (function() {
 
     // the latest query #update was called with
     this.query = null;
-    this.datasets = _.map(o.datasets, initializeDataset);
+    this.datasets = $_.map(o.datasets, initializeDataset);
 
     function initializeDataset(oDataset) {
       var node = that.$node.find(oDataset.node).first();
@@ -38,7 +38,7 @@ var Menu = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Menu.prototype, EventEmitter, {
+  $_.mixin(Menu.prototype, EventEmitter, {
 
     // ### event handlers
 
@@ -63,7 +63,7 @@ var Menu = (function() {
     // ### private
 
     _allDatasetsEmpty: function allDatasetsEmpty() {
-      return _.every(this.datasets, isDatasetEmpty);
+      return $_.every(this.datasets, isDatasetEmpty);
 
       function isDatasetEmpty(dataset) { return dataset.isEmpty(); }
     },
@@ -101,10 +101,10 @@ var Menu = (function() {
     bind: function() {
     var that = this, onSelectableClick;
 
-      onSelectableClick = _.bind(this._onSelectableClick, this);
+      onSelectableClick = $_.bind(this._onSelectableClick, this);
       this.$node.on('click.tt', this.selectors.selectable, onSelectableClick);
 
-      _.each(this.datasets, function(dataset) {
+      $_.each(this.datasets, function(dataset) {
         dataset
         .onSync('asyncRequested', that._propagate, that)
         .onSync('asyncCanceled', that._propagate, that)
@@ -184,7 +184,7 @@ var Menu = (function() {
       // don't update if the query hasn't changed
       if (isValidUpdate) {
         this.query = query;
-        _.each(this.datasets, updateDataset);
+        $_.each(this.datasets, updateDataset);
       }
 
       return isValidUpdate;
@@ -193,7 +193,7 @@ var Menu = (function() {
     },
 
     empty: function empty() {
-      _.each(this.datasets, clearDataset);
+      $_.each(this.datasets, clearDataset);
 
       this.query = null;
       this.$node.addClass(this.classes.empty);
@@ -207,7 +207,7 @@ var Menu = (function() {
       // #970
       this.$node = $('<div>');
 
-      _.each(this.datasets, destroyDataset);
+      $_.each(this.datasets, destroyDataset);
 
       function destroyDataset(dataset) { dataset.destroy(); }
     }

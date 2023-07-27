@@ -13,7 +13,7 @@ var DefaultMenu = (function() {
     Menu.apply(this, [].slice.call(arguments, 0));
   }
 
-  _.mixin(DefaultMenu.prototype, Menu.prototype, {
+  $_.mixin(DefaultMenu.prototype, Menu.prototype, {
     // overrides
     // ---------
 

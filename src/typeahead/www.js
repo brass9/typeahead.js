@@ -26,7 +26,7 @@ var WWW = (function() {
   function build(o) {
     var www, classes;
 
-    classes = _.mixin({}, defaultClassNames, o);
+    classes = $_.mixin({}, defaultClassNames, o);
 
     www = {
       css: buildCss(),
@@ -40,7 +40,7 @@ var WWW = (function() {
       html: www.html,
       classes: www.classes,
       selectors: www.selectors,
-      mixin: function(o) { _.mixin(o, www); }
+      mixin: function(o) { $_.mixin(o, www); }
     };
   }
 
@@ -53,7 +53,7 @@ var WWW = (function() {
 
   function buildSelectors(classes) {
     var selectors = {};
-    _.each(classes, function(v, k) { selectors[k] = '.' + v; });
+    $_.each(classes, function(v, k) { selectors[k] = '.' + v; });
 
     return selectors;
   }
@@ -98,15 +98,6 @@ var WWW = (function() {
         right:' 0'
       }
     };
-
-    // ie specific styling
-    if (_.isMsie()) {
-       // ie6-8 (and 9?) doesn't fire hover and click events for elements with
-       // transparent backgrounds, for a workaround, use 1x1 transparent gif
-      _.mixin(css.input, {
-        backgroundImage: 'url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7)'
-      });
-    }
 
     return css;
   }

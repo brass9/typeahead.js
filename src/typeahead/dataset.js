@@ -14,7 +14,7 @@ var Dataset = (function() {
     obj: 'tt-selectable-object'
   };
 
-  nameGenerator = _.getIdGenerator();
+  nameGenerator = $_.getIdGenerator();
 
   // constructor
   // -----------
@@ -53,7 +53,7 @@ var Dataset = (function() {
 
     // if the async option is undefined, inspect the source signature as
     // a hint to figuring out of the source will return async suggestions
-    this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
+    this.async = $_.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
 
     this._resetLastSuggestion();
 
@@ -81,7 +81,7 @@ var Dataset = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Dataset.prototype, EventEmitter, {
+  $_.mixin(Dataset.prototype, EventEmitter, {
 
     // ### private
 
@@ -183,7 +183,7 @@ var Dataset = (function() {
       var that = this, fragment;
 
       fragment = document.createDocumentFragment();
-      _.each(suggestions, function getSuggestionNode(suggestion) {
+      $_.each(suggestions, function getSuggestionNode(suggestion) {
         var $el, context;
 
         context = that._injectQuery(query, suggestion);
@@ -228,7 +228,7 @@ var Dataset = (function() {
     },
 
     _injectQuery: function injectQuery(query, obj) {
-      return _.isObject(obj) ? _.mixin({ _query: query }, obj) : obj;
+      return $_.isObject(obj) ? $_.mixin({ _query: query }, obj) : obj;
     },
 
     // ### public
@@ -302,19 +302,19 @@ var Dataset = (function() {
   // ----------------
 
   function getDisplayFn(display) {
-    display = display || _.stringify;
+    display = display || $_.stringify;
 
-    return _.isFunction(display) ? display : displayFn;
+    return $_.isFunction(display) ? display : displayFn;
 
     function displayFn(obj) { return obj[display]; }
   }
 
   function getTemplates(templates, displayFn) {
     return {
-      notFound: templates.notFound && _.templatify(templates.notFound),
-      pending: templates.pending && _.templatify(templates.pending),
-      header: templates.header && _.templatify(templates.header),
-      footer: templates.footer && _.templatify(templates.footer),
+      notFound: templates.notFound && $_.templatify(templates.notFound),
+      pending: templates.pending && $_.templatify(templates.pending),
+      header: templates.header && $_.templatify(templates.header),
+      footer: templates.footer && $_.templatify(templates.footer),
       suggestion: templates.suggestion || suggestionTemplate
     };
 

@@ -36,7 +36,7 @@ var EventBus = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(EventBus.prototype, {
+  $_.mixin(EventBus.prototype, {
 
     // ### private
 

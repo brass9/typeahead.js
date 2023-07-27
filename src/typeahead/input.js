@@ -52,7 +52,7 @@ var Input = (function() {
       this.setHint =
       this.getHint =
       this.clearHint =
-      this.clearHintIfInvalid = _.noop;
+      this.clearHintIfInvalid = $_.noop;
     }
   }
 
@@ -61,13 +61,13 @@ var Input = (function() {
 
   Input.normalizeQuery = function(str) {
     // strips leading whitespace and condenses all whitespace
-    return (_.toStr(str)).replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    return ($_.toStr(str)).replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
   };
 
   // instance methods
   // ----------------
 
-  _.mixin(Input.prototype, EventEmitter, {
+  $_.mixin(Input.prototype, EventEmitter, {
 
     // ### event handlers
 
@@ -164,32 +164,16 @@ var Input = (function() {
       var that = this, onBlur, onFocus, onKeydown, onInput;
 
       // bound functions
-      onBlur = _.bind(this._onBlur, this);
-      onFocus = _.bind(this._onFocus, this);
-      onKeydown = _.bind(this._onKeydown, this);
-      onInput = _.bind(this._onInput, this);
+      onBlur = $_.bind(this._onBlur, this);
+      onFocus = $_.bind(this._onFocus, this);
+      onKeydown = $_.bind(this._onKeydown, this);
+      onInput = $_.bind(this._onInput, this);
 
       this.$input
       .on('blur.tt', onBlur)
       .on('focus.tt', onFocus)
-      .on('keydown.tt', onKeydown);
-
-      // ie8 don't support the input event
-      // ie9 doesn't fire the input event when characters are removed
-      if (!_.isMsie() || _.isMsie() > 9) {
-        this.$input.on('input.tt', onInput);
-      }
-
-      else {
-        this.$input.on('keydown.tt keypress.tt cut.tt paste.tt', function($e) {
-          // if a special key triggered this, ignore it
-          if (specialKeyCodeMap[$e.which || $e.keyCode]) { return; }
-
-          // give the browser a chance to update the value of the input
-          // before checking to see if the query changed
-          _.defer(_.bind(that._onInput, that, $e));
-        });
-      }
+      .on('keydown.tt', onKeydown)
+      .on('input.tt', onInput);
 
       return this;
     },
@@ -275,7 +259,7 @@ var Input = (function() {
       valueLength = this.$input.val().length;
       selectionStart = this.$input[0].selectionStart;
 
-      if (_.isNumber(selectionStart)) {
+      if ($_.isNumber(selectionStart)) {
        return selectionStart === valueLength;
       }
 

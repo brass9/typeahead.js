@@ -32,7 +32,7 @@ var Typeahead = (function() {
     www.mixin(this);
 
     this.eventBus = o.eventBus;
-    this.minLength = _.isNumber(o.minLength) ? o.minLength : 1;
+    this.minLength = $_.isNumber(o.minLength) ? o.minLength : 1;
 
     this.input = o.input;
     this.menu = o.menu;
@@ -87,7 +87,7 @@ var Typeahead = (function() {
   // instance methods
   // ----------------
 
-  _.mixin(Typeahead.prototype, {
+  $_.mixin(Typeahead.prototype, {
 
     // here's where hacks get applied and we don't feel bad about it
     _hacks: function hacks() {
@@ -107,14 +107,6 @@ var Typeahead = (function() {
         active = document.activeElement;
         isActive = $menu.is(active);
         hasActive = $menu.has(active).length > 0;
-
-        if (_.isMsie() && (isActive || hasActive)) {
-          $e.preventDefault();
-          // stop immediate in order to prevent Input#_onBlur from
-          // getting exectued
-          $e.stopImmediatePropagation();
-          _.defer(function() { $input.focus(); });
-        }
       });
 
       // #351: prevents input blur due to clicks within menu
@@ -430,7 +422,7 @@ var Typeahead = (function() {
     return function() {
       var args = [].slice.call(arguments);
 
-      _.each(methods, function(method) {
+      $_.each(methods, function(method) {
         return ctx[method].apply(ctx, args);
       });
     };
