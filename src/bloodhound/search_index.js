@@ -4,24 +4,42 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
+/**
+ * @callback SearchIndexIdentify  Used to get the ID property from object search result data
+ * @param {object}    d   The object being checked from search result data
+ * @returns {object}      Any identifier that is unique across all data passed to this SearchIndex. Does not need to be meaningful otherwise. Used to identify unique entries in SearchIndex. Could be an int id counter, a hash result, etc.
+ * 
+ * @callback SearchIndexTokenizer Used to normalize queries and data, and split them into "tokens" - usually words broken up at space characters
+ * @param {string}    q   The string to be tokenized, for example the query the user has typed so far like "Ford F-15"
+ * @returns {string[]}    The normalized, split string, for example ['Ford', 'F15']
+ * 
+ * @typedef {Object} SearchIndexOptions
+ * @property {SearchIndexIdentify}   identify
+ * @property {SearchIndexTokenizer}  datumTokenizer
+ * @property {SearchIndexTokenizer}  queryTokenizer
+ * @property {boolean}               shouldMatchAnyToken  Default: false. If false, only matches if first token (word) in query matches first token in result. If true, matches if any token matches any token.
+ * @property {boolean}               shouldStartAnyChar   Default: false. If false, only matches if first character in query token matches first character result token. If true, matches query anywhere in result token.
+ */
+
+/**
+ * Compiles characters in a given string into an Index - a tree of characters that represent the remaining possible paths forward in the data
+ */
 var SearchIndex = window.SearchIndex = (function() {
   'use strict';
 
   var CHILDREN = 'c', IDS = 'i';
 
-  // constructor
-  // -----------
-
+  /**
+   * @param {SearchIndexOptions} o
+   */
   function SearchIndex(o) {
     o = o || {};
 
-    if (!o.datumTokenizer || !o.queryTokenizer) {
-      $.error('datumTokenizer and queryTokenizer are both required');
-    }
-
     this.identify = o.identify || $_.stringify;
-    this.datumTokenizer = o.datumTokenizer;
-    this.queryTokenizer = o.queryTokenizer;
+    this.datumTokenizer = o.datumTokenizer || Bloodhound.tokenizers.whitespace;
+    this.queryTokenizer = o.queryTokenizer || Bloodhound.tokenizers.whitespace;
+    this.shouldMatchAnyToken = o.shouldMatchAnyToken || false;
+    this.shouldStartAnyChar = o.shouldStartAnyChar || false;
 
     this.reset();
   }
@@ -70,32 +88,60 @@ var SearchIndex = window.SearchIndex = (function() {
     },
 
     search: function search(query) {
-      var that = this, tokens, matches;
+      const that = this;
+      let matches = null;
+      const tokens = normalizeTokens(this.queryTokenizer(query));
 
-      tokens = normalizeTokens(this.queryTokenizer(query));
+      tokens.forEach(token => {
+        let node, chars, ch, ids;
 
-      $_.each(tokens, function(token) {
-        var node, chars, ch, ids;
-
-        // previous tokens didn't share any matches
-        if (matches && matches.length === 0) {
+        if (
+          !that.shouldMatchAnyToken &&
+          // previous tokens didn't share any matches
+          matches && matches.length === 0
+        ) {
           return false;
         }
 
         node = that.trie;
         chars = token.split('');
 
-        while (node && (ch = chars.shift())) {
-          node = node[CHILDREN][ch];
+        if (that.shouldStartAnyChar) {
+          let charsLeft = 0;
+          for (let startingIndex = 0; startingIndex < chars.length; startingIndex++) {
+            let charIndex = startingIndex;
+            let charsLeft = chars.length - startingIndex;
+            while (node && charsLeft--) {
+              ch = chars[charIndex++];
+              node = node[CHILDREN][ch];
+            }
+
+            if (node && charsLeft == -1)
+              break;  // We got a match! break
+
+            node = that.trie;
+          }
+
+          if (charsLeft == 0)
+            chars = ''; // Hack to mimic the way fast-break version signaled match works for now
+        } else {
+          while (node && (ch = chars.shift())) {
+            node = node[CHILDREN][ch];
+          }
         }
 
         if (node && chars.length === 0) {
-          ids = node[IDS].slice(0);
-          matches = matches ? getIntersection(matches, ids) : ids;
-        }
+          ids = node[IDS];
+          // shouldMatchAnyToken is simple - if it matches any token in the query, it's a match. union each time.
+          if (that.shouldMatchAnyToken)
+            matches = union(matches || [], ids);
+          else if (matches) // The default, non-shouldMatchAnyToken is complicated. matches begins null, and if the first query token doesn't match, it fails out early. It will not allow a match on say, the second word in a sentence
+            matches = intersection(matches, ids);
+          else  // default, non-shouldMatchAnyToken initializes matches and allows continued searching by copying ids here, if and only if the first query token is a match
+            matches = Array.from(ids);
 
-        // break early if we find out there are no possible matches
-        else {
+        } else if (!that.shouldMatchAnyToken) {
+          // break early if we find out there are no possible matches
           matches = [];
           return false;
         }
@@ -150,42 +196,26 @@ var SearchIndex = window.SearchIndex = (function() {
   }
 
   function unique(array) {
-    var seen = {}, uniques = [];
-
-    for (var i = 0, len = array.length; i < len; i++) {
-      if (!seen[array[i]]) {
-        seen[array[i]] = true;
-        uniques.push(array[i]);
-      }
-    }
-
+    const jsSet = new Set(array);
+    const uniques = Array.from(jsSet);
     return uniques;
   }
 
-  function getIntersection(arrayA, arrayB) {
-    var ai = 0, bi = 0, intersection = [];
+  function intersection(arrayA, arrayB) {
+    const jsSetA = new Set(arrayA);
+    const result = [];
 
-    arrayA = arrayA.sort();
-    arrayB = arrayB.sort();
+    jsSetA.forEach(a => {
+      if (arrayB.includes(a))
+        result.push(a);
+    });
 
-    var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
+    return result;
+  }
 
-    while (ai < lenArrayA && bi < lenArrayB) {
-      if (arrayA[ai] < arrayB[bi]) {
-        ai++;
-      }
-
-      else if (arrayA[ai] > arrayB[bi]) {
-        bi++;
-      }
-
-      else {
-        intersection.push(arrayA[ai]);
-        ai++;
-        bi++;
-      }
-    }
-
-    return intersection;
+  function union(arrayA, arrayB) {
+    const jsSet = new Set(arrayA);
+    arrayB.forEach(b => jsSet.add(b));
+    return Array.from(jsSet);
   }
 })();

@@ -427,17 +427,17 @@
 
 	  // constructor
 	  // -----------
-
+	  /**
+	   * @param {SearchIndexOptions} o
+	   */
 	  function SearchIndex(o) {
 	    o = o || {};
 
-	    if (!o.datumTokenizer || !o.queryTokenizer) {
-	      $.error('datumTokenizer and queryTokenizer are both required');
-	    }
-
 	    this.identify = o.identify || $_.stringify;
-	    this.datumTokenizer = o.datumTokenizer;
-	    this.queryTokenizer = o.queryTokenizer;
+	    this.datumTokenizer = o.datumTokenizer || Bloodhound.tokenizers.whitespace;
+	    this.queryTokenizer = o.queryTokenizer || Bloodhound.tokenizers.whitespace;
+	    this.shouldMatchAnyToken = o.shouldMatchAnyToken || false;
+	    this.shouldStartAnyChar = o.shouldStartAnyChar || false;
 
 	    this.reset();
 	  }
@@ -486,32 +486,60 @@
 	    },
 
 	    search: function search(query) {
-	      var that = this, tokens, matches;
+	      const that = this;
+	      let matches = null;
+	      const tokens = normalizeTokens(this.queryTokenizer(query));
 
-	      tokens = normalizeTokens(this.queryTokenizer(query));
+	      tokens.forEach(token => {
+	        let node, chars, ch, ids;
 
-	      $_.each(tokens, function(token) {
-	        var node, chars, ch, ids;
-
-	        // previous tokens didn't share any matches
-	        if (matches && matches.length === 0) {
+	        if (
+	          !that.shouldMatchAnyToken &&
+	          // previous tokens didn't share any matches
+	          matches && matches.length === 0
+	        ) {
 	          return false;
 	        }
 
 	        node = that.trie;
 	        chars = token.split('');
 
-	        while (node && (ch = chars.shift())) {
-	          node = node[CHILDREN][ch];
+	        if (that.shouldStartAnyChar) {
+	          let charsLeft = 0;
+	          for (let startingIndex = 0; startingIndex < chars.length; startingIndex++) {
+	            let charIndex = startingIndex;
+	            let charsLeft = chars.length - startingIndex;
+	            while (node && charsLeft--) {
+	              ch = chars[charIndex++];
+	              node = node[CHILDREN][ch];
+	            }
+
+	            if (node && charsLeft == -1)
+	              break;  // We got a match! break
+
+	            node = that.trie;
+	          }
+
+	          if (charsLeft == 0)
+	            chars = ''; // Hack to mimic the way fast-break version signaled match works for now
+	        } else {
+	          while (node && (ch = chars.shift())) {
+	            node = node[CHILDREN][ch];
+	          }
 	        }
 
 	        if (node && chars.length === 0) {
-	          ids = node[IDS].slice(0);
-	          matches = matches ? getIntersection(matches, ids) : ids;
-	        }
+	          ids = node[IDS];
+	          // shouldMatchAnyToken is simple - if it matches any token in the query, it's a match. union each time.
+	          if (that.shouldMatchAnyToken)
+	            matches = union(matches || [], ids);
+	          else if (matches) // The default, non-shouldMatchAnyToken is complicated. matches begins null, and if the first query token doesn't match, it fails out early. It will not allow a match on say, the second word in a sentence
+	            matches = intersection(matches, ids);
+	          else  // default, non-shouldMatchAnyToken initializes matches and allows continued searching by copying ids here, if and only if the first query token is a match
+	            matches = Array.from(ids);
 
-	        // break early if we find out there are no possible matches
-	        else {
+	        } else if (!that.shouldMatchAnyToken) {
+	          // break early if we find out there are no possible matches
 	          matches = [];
 	          return false;
 	        }
@@ -566,43 +594,27 @@
 	  }
 
 	  function unique(array) {
-	    var seen = {}, uniques = [];
-
-	    for (var i = 0, len = array.length; i < len; i++) {
-	      if (!seen[array[i]]) {
-	        seen[array[i]] = true;
-	        uniques.push(array[i]);
-	      }
-	    }
-
+	    const jsSet = new Set(array);
+	    const uniques = Array.from(jsSet);
 	    return uniques;
 	  }
 
-	  function getIntersection(arrayA, arrayB) {
-	    var ai = 0, bi = 0, intersection = [];
+	  function intersection(arrayA, arrayB) {
+	    const jsSetA = new Set(arrayA);
+	    const result = [];
 
-	    arrayA = arrayA.sort();
-	    arrayB = arrayB.sort();
+	    jsSetA.forEach(a => {
+	      if (arrayB.includes(a))
+	        result.push(a);
+	    });
 
-	    var lenArrayA = arrayA.length, lenArrayB = arrayB.length;
+	    return result;
+	  }
 
-	    while (ai < lenArrayA && bi < lenArrayB) {
-	      if (arrayA[ai] < arrayB[bi]) {
-	        ai++;
-	      }
-
-	      else if (arrayA[ai] > arrayB[bi]) {
-	        bi++;
-	      }
-
-	      else {
-	        intersection.push(arrayA[ai]);
-	        ai++;
-	        bi++;
-	      }
-	    }
-
-	    return intersection;
+	  function union(arrayA, arrayB) {
+	    const jsSet = new Set(arrayA);
+	    arrayB.forEach(b => jsSet.add(b));
+	    return Array.from(jsSet);
 	  }
 	})();
 
@@ -956,11 +968,12 @@
 	    this.remote = o.remote ? new Remote(o.remote) : null;
 	    this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
 
-	    // the backing data structure used for fast pattern matching
 	    this.index = new SearchIndex({
 	      identify: this.identify,
 	      datumTokenizer: o.datumTokenizer,
-	      queryTokenizer: o.queryTokenizer
+	      queryTokenizer: o.queryTokenizer,
+	      shouldMatchAnyToken: o.shouldMatchAnyToken,
+	      shouldStartAnyChar: o.shouldStartAnyChar,
 	    });
 
 	    // hold off on intialization if the intialize option was explicitly false

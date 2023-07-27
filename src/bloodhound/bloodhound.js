@@ -4,6 +4,27 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
+/**
+ * @typedef BloodhoundOptions
+ * @property {SearchIndexIdentify} identify
+ * @property {SearchIndexTokenizer} datumTokenizer
+ * @property {SearchIndexTokenizer} queryTokenizer
+ * @property {string|object} local
+ * @property {string|NetworkOptions} prefetch
+ * @property {string|RemoteOptions} remote
+ *
+ * @typedef NetworkOptions
+ * @property {string}   url    The url for this remote/prefetch. If instead of an object, you pass a string, it's as though you passed an object with only this property.
+ * @property {boolean}  cache  Defaults to true. Whether to cache.
+ * @property {function} prepare Allows you to modify the ajax instance before it sends its request
+ * @property {Function} transform Allows you to modify the results before the framework injests them
+ * 
+ * @typedef RemoteOptions
+ * @extends NetworkOptions
+ * @property {string}   wildcard  The string to replace with the given query. For example if your search API endpoint is /search and takes a param q, you might set url to '/search?q=query' and wildcard to 'query'.
+ * @property {function} replace   An alternative to prepare or wildcard. All 3 build a prepare function. Wildcard takes a simple string and interrupts the least. Replace is a middle ground, allowing you to work on the URL but nothing else. prepare supercedes both and lets you work on the entire AJAX call before it goes out.
+ */
+
 var Bloodhound = (function() {
   'use strict';
 
@@ -11,9 +32,11 @@ var Bloodhound = (function() {
 
   old = window && window.Bloodhound;
 
-  // constructor
-  // -----------
 
+  /**
+   * See also SearchIndex - many BloodhoundOptions are simply passed-thru to it.
+   * @param {BloodhoundOptions} o
+   */
   function Bloodhound(o) {
     o = oParser(o);
 
@@ -25,11 +48,12 @@ var Bloodhound = (function() {
     this.remote = o.remote ? new Remote(o.remote) : null;
     this.prefetch = o.prefetch ? new Prefetch(o.prefetch) : null;
 
-    // the backing data structure used for fast pattern matching
     this.index = new SearchIndex({
       identify: this.identify,
       datumTokenizer: o.datumTokenizer,
-      queryTokenizer: o.queryTokenizer
+      queryTokenizer: o.queryTokenizer,
+      shouldMatchAnyToken: o.shouldMatchAnyToken,
+      shouldStartAnyChar: o.shouldStartAnyChar,
     });
 
     // hold off on intialization if the intialize option was explicitly false
