@@ -178,7 +178,7 @@
 	    this.ls = override || LOCAL_STORAGE;
 
 	    // if local storage isn't available, everything becomes a noop
-	    !this.ls && this.$_noop();
+	    !this.ls && this._noop();
 	  }
 
 	  // instance methods
@@ -276,7 +276,7 @@
 	  }
 
 	  function decode(val) {
-	    return $.parseJSON(val);
+	    return JSON.parse(val);
 	  }
 
 	  function gatherMatchingKeys(keyMatcher) {

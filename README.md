@@ -29,11 +29,15 @@ It could use an upgrade, and jQuery3 also has underlying principles a decade lat
 
 This fork upgrades the Typeahead to use jquery3.7.x. It also gets rid of oldIE-specific code, and, it removes an odd redundancy in the original dist files - a jQuery extension library named "_" (but, was not the popular Underscore library) that appeared in both bloodhound and typeahead. In this version it's extracted. That means you need 3 dist files (in this order) for a working Typeahead:
 
-	typeahead-underscore.js
+	typeahead-jquery-ext.js
 	bloodhound.js
 	typeahead.jquery.js
 
-Also note that typeahead.jquery.js is misleading; it might make it seem like it's the only part that depends on jQuery. In fact all 3 files do (and Bloodhound always did). So, jquery-3.7.0.js (or higher) should be loaded before these 3 files.
+Or just use the full bundle:
+
+	typeahead.bundle.js
+
+Also note that typeahead.jquery.js is misleading; it might make it seem like it's the only part that depends on jQuery. In fact all 3 files do (and always did). So, jquery-3.7.0.js (or higher) should be loaded before these Typeahead files.
 
 
 

@@ -1508,7 +1508,7 @@
 	    },
 
 	    _minLengthMet: function minLengthMet(query) {
-	      query = _.isString(query) ? query : (this.input.getQuery() || '');
+	      query = $_.isString(query) ? query : (this.input.getQuery() || '');
 
 	      return query.length >= this.minLength;
 	    },
@@ -1520,9 +1520,9 @@
 	      data = this.menu.getSelectableData($selectable);
 	      val = this.input.getInputValue();
 
-	      if (data && !_.isBlankString(val) && !this.input.hasOverflow()) {
+	      if (data && !$_.isBlankString(val) && !this.input.hasOverflow()) {
 	        query = Input.normalizeQuery(val);
-	        escapedQuery = _.escapeRegExChars(query);
+	        escapedQuery = $_.escapeRegExChars(query);
 
 	        // match input value, then capture trailing text
 	        frontMatchRegEx = new RegExp('^(?:' + escapedQuery + ')(.+$)', 'i');
@@ -1621,7 +1621,7 @@
 
 	    setVal: function setVal(val) {
 	      // expect val to be a string, so be safe, and coerce
-	      this.input.setQuery(_.toStr(val));
+	      this.input.setQuery($_.toStr(val));
 	    },
 
 	    getVal: function getVal() {
