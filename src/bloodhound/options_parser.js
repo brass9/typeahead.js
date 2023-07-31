@@ -24,13 +24,18 @@ var oParser = (function() {
 
     o = $_.mixin(defaults, o || {});
 
+    // TODO: These should be set to defaults instead, obviating the need for an error
     // throw error if required options are not set
-    !o.datumTokenizer && $.error('datumTokenizer is required');
-    !o.queryTokenizer && $.error('queryTokenizer is required');
+    //!o.datumTokenizer && $.error('datumTokenizer is required');
+    //!o.queryTokenizer && $.error('queryTokenizer is required');
 
     sorter = o.sorter;
     o.sorter = sorter ? function(x) { return x.sort(sorter); } : $_.identity;
 
+    // TODO: Danger. This allows the caller to pass a function, o.local, which gets called
+    // *in the constructor* even though we can't trust the caller's function
+    // It may error out making a mess of this object initialization
+    // Ideally this call to .local() happens later, like in a shared initialize()
     o.local = $_.isFunction(o.local) ? o.local() : o.local;
     o.prefetch = parsePrefetch(o.prefetch);
     o.remote = parseRemote(o.remote);
@@ -96,7 +101,7 @@ var oParser = (function() {
     // throw error if required options are not set
     !o.url && $.error('remote requires url to be set');
 
-    // DEPRECATED: filter will be dropped in v1
+    // DEPRECATED: filter will be dropped in v1 - TODO: Why? Maybe this isn't deprecated.
     o.transform = o.filter || o.transform;
 
     o.prepare = toRemotePrepare(o);
@@ -129,7 +134,7 @@ var oParser = (function() {
     }
 
     else {
-      prepare = idenityPrepare;
+      prepare = identityPrepare;
     }
 
     return prepare;
@@ -144,7 +149,7 @@ var oParser = (function() {
       return settings;
     }
 
-    function idenityPrepare(query, settings) {
+    function identityPrepare(query, settings) {
       return settings;
     }
   }

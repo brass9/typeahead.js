@@ -12,17 +12,36 @@
  * @property {string|object} local
  * @property {string|NetworkOptions} prefetch
  * @property {string|RemoteOptions} remote
+ * @property {Function} sorter  The sort comparison function.
+ * @property {Number} sufficient Default 5. int - positive number stating how many typeahead entries to attempt to show.
+ * @property {boolean}  shouldMatchAnyToken See SearchIndex
+ * @property {boolean}  shouldStartAnyChar  See SearchIndex
  *
  * @typedef NetworkOptions
  * @property {string}   url    The url for this remote/prefetch. If instead of an object, you pass a string, it's as though you passed an object with only this property.
  * @property {boolean}  cache  Defaults to true. Whether to cache.
  * @property {function} prepare Allows you to modify the ajax instance before it sends its request
  * @property {Function} transform Allows you to modify the results before the framework injests them
+ * @property {}
  * 
  * @typedef RemoteOptions
  * @extends NetworkOptions
  * @property {string}   wildcard  The string to replace with the given query. For example if your search API endpoint is /search and takes a param q, you might set url to '/search?q=query' and wildcard to 'query'.
  * @property {function} replace   An alternative to prepare or wildcard. All 3 build a prepare function. Wildcard takes a simple string and interrupts the least. Replace is a middle ground, allowing you to work on the URL but nothing else. prepare supercedes both and lets you work on the entire AJAX call before it goes out.
+ * 
+ * @callback SorterOption See Array.sort() in Javascript language definition; the Comparer, called compareFn in
+ * Moz docs, is exactly what this option is.
+ * Note: If the data you return to a given part of Bloodhound is itself a class with a custom .sort() function, then:
+ * 1. You must pass a .sorter here in options to trigger the .sort() to be called, but
+ * 2. You then don't need to do anything with this method - you could just pass true. Anything that evaluates to true
+ * will cause your custom .sort() to be called
+ * Note: If you read .sorter after setting it, it's a bit confusing. Your sorter is curried into a sort function,
+ * such that bloodhound.sorter != o.sorter. Instead bloodhound.sorter = data => data.sort(o.sorter)
+ * @template TDataItem
+ * @param {TDataItem} a
+ * @param {TDataItem} b
+ * @returns {Number}  An int indicating whether a comes before b (negative), or after (positive).
+ * 
  */
 
 var Bloodhound = (function() {
